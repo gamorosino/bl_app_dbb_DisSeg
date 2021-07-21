@@ -47,7 +47,7 @@ def init_unet(checkpoints_dir,gpu_num=str(0)):
    script_version="0.2.9.2.6.1"
    softmax_str="nosoftmax"
    checkpoint_dir = checkpoints_dir + "/checkpoints/"+ext_name_train+"_"+script_version+"_"+fbname+"_"+"filter"+str(fltr1stnmb)+"_dp"+str(drop_rate)+"_"+loss_type+"_"+softmax_str+"/"
-   print(checkpoint_dir)  
+   print('checkpoint dir: '+checkpoint_dir)  
    checkpoint_basename = ext_name_train
 
    ckpt_step="83006" #66667
@@ -82,7 +82,6 @@ def init_unet(checkpoints_dir,gpu_num=str(0)):
 	   for line in [model_checkpoint_path,all_model_checkpoint_paths]:
 		 print >>outF, line
 	   outF.close()
-
    unet = UNET_3D_multiclass( loss_type=loss_type,
                                           drop_rate=drop_rate,
                                           filter1stnumb=fltr1stnmb,

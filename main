@@ -13,10 +13,11 @@ echo "t1: "${t1}
 
 
 outputdir=${PWD}"/outputdir"
+mkdir -p ${outputdir}
 output=${outputdir}'/segmentation.nii.gz'
 
-chkcp_dir='.'
-singularity exec -e gamorosino/bl_app_dbb_disseg:latest python predict.py  $t1 ${output} ${chkcp_dir} 
+chkcp_dir=${PWD}
+singularity exec -e  --nv docker://gamorosino/bl_app_dbb_disseg python predict.py  $t1 ${output} ${chkcp_dir} 
 
 cp './data/label.json' ${outputdir}
 
