@@ -62,11 +62,11 @@ RUN  cd / \
 	mkdir -p "/bl_app_dbb_DisSeg/scripts/checkpoints/";\
 	checkpoints_dir=/bl_app_dbb_DisSeg/scripts/checkpoints/UNET_DATA_3D_T1_segment_8tms_0.2.9.2.6.1_256x256x256_filter12_dp0.15_sparse_softmax_cross_entropy_nosoftmax ; \
 	mkdir -p ${checkpoints_dir}; \
-	gdrive_download "https://drive.google.com/file/d/1P_Fk0eb2YEURXHkqp1Ek0WJab77K6aRH/view?usp=sharing"  ${checkpoints_dir}"/UNET_DATA_3D_T1_segment_8tms-66667.meta" ; \
-	gdrive_download "https://drive.google.com/file/d/1fDgEzSUJp5DJbFUo4GNNGSuby7PLolWh/view?usp=sharing" ${checkpoints_dir}"/UNET_DATA_3D_T1_segment_8tms-66667.index" ; \
-	gdrive_download "https://drive.google.com/file/d/1MqzZx6cS2JHKF9zV06odC8j8johl13ND/view?usp=sharing" ${checkpoints_dir}"/UNET_DATA_3D_T1_segment_8tms-66667.data-00000-of-00001" ; \ 
-	echo "model_checkpoint_path: \"${checkpoints_dir}/UNET_DATA_3D_T1_segment_8tms-66667\" " >> ${checkpoints_dir}"/checkpoint" ; \
-	echo "all_model_checkpoint_paths: \"${checkpoints_dir}/UNET_DATA_3D_T1_segment_8tms-66667\" " >> ${checkpoints_dir}"/checkpoint" ;  \
+	gdrive_download "https://drive.google.com/file/d/1P_Fk0eb2YEURXHkqp1Ek0WJab77K6aRH/view?usp=sharing"  ${checkpoints_dir}"/UNET_DATA_3D_T1_segment_8tms-83006.meta" ; \
+	gdrive_download "https://drive.google.com/file/d/1fDgEzSUJp5DJbFUo4GNNGSuby7PLolWh/view?usp=sharing" ${checkpoints_dir}"/UNET_DATA_3D_T1_segment_8tms-83006.index" ; \
+	gdrive_download "https://drive.google.com/file/d/1MqzZx6cS2JHKF9zV06odC8j8johl13ND/view?usp=sharing" ${checkpoints_dir}"/UNET_DATA_3D_T1_segment_8tms-83006.data-00000-of-00001" ; \ 
+	echo "model_checkpoint_path: \"${checkpoints_dir}/UNET_DATA_3D_T1_segment_8tms-83006\" " >> ${checkpoints_dir}"/checkpoint" ; \
+	echo "all_model_checkpoint_paths: \"${checkpoints_dir}/UNET_DATA_3D_T1_segment_8tms-83006\" " >> ${checkpoints_dir}"/checkpoint" ;  \
 
 
 #make it work under singularity 

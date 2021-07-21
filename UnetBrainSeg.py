@@ -50,8 +50,8 @@ def init_unet(checkpoints_dir,gpu_num=str(0)):
    print(checkpoint_dir)  
    checkpoint_basename = ext_name_train
 
-   #ckpt_step="83006" #66667
-   ckpt_step="66667" #66667
+   ckpt_step="83006" #66667
+   #ckpt_step="66667" #66667
    checkpoint_file1=checkpoint_dir+ "/"+checkpoint_basename+"-"+ckpt_step+".data-00000-of-00001"
    checkpoint_file2=checkpoint_dir+ "/"+checkpoint_basename+"-"+ckpt_step+".index"
    checkpoint_file3=checkpoint_dir+ "/"+checkpoint_basename+"-"+ckpt_step+".meta"
@@ -67,11 +67,11 @@ def init_unet(checkpoints_dir,gpu_num=str(0)):
 # 	gdd.download_file_from_google_drive(file_id='1fHD0IWtz4_SySEdHtpr-EESXrK_OS0Y3',
 #                                     dest_path=checkpoint_file3)	
 
-	gdd.download_file_from_google_drive(file_id='1NWKxy3pbLLG5HEgSWIkc6R_EM_RnXJ0B',
+	gdd.download_file_from_google_drive(file_id='1MqzZx6cS2JHKF9zV06odC8j8johl13ND',
                                     dest_path=checkpoint_file1)
-	gdd.download_file_from_google_drive(file_id='1Wh0g-pBimV_-s4m3U_JUcgbeyyHA4k0z',
+	gdd.download_file_from_google_drive(file_id='1fDgEzSUJp5DJbFUo4GNNGSuby7PLolWh',
                                     dest_path=checkpoint_file2)
-	gdd.download_file_from_google_drive(file_id='1EGrqZubBUdXQTBoy-tDocNfoO04tKprq',
+	gdd.download_file_from_google_drive(file_id='1P_Fk0eb2YEURXHkqp1Ek0WJab77K6aRH',
                                     dest_path=checkpoint_file3)	
    checkpoint_file=checkpoint_dir+ "/checkpoint"
    
