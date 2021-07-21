@@ -51,9 +51,10 @@ RUN  conda install -c anaconda python=2.7 scikit-image=0.14.2 \
 ## Clone bl_app_dbb_DisSeg via Github
 
 RUN cd / \
-  && git clone git@github.com:gamorosino/bl_app_dbb_DisSeg.git \
-  && cd bl_app_dbb_DisSeg \
-  && git checkout docker
+  && git clone git@github.com:gamorosino/bl_app_dbb_DisSeg.git 
+  #\
+  #&& cd bl_app_dbb_DisSeg \
+  #&& git checkout master
 
 ## Donwload UNET checkpoints and test data
 
