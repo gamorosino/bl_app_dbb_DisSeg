@@ -12,7 +12,7 @@ echo "t1: "${t1}
 
 
 
-outputdir=${PWD}"/outputdir"
+outputdir=${PWD}"/segmentation"
 mkdir -p ${outputdir}
 output=${outputdir}'/segmentation.nii.gz'
 
