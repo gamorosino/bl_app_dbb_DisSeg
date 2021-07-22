@@ -3,7 +3,7 @@
 """
 Created on Tue May 11 15:06:37 2021
 
-@author: gamorosino
+@author: Gabriele Amorosino
 """
 
 
@@ -51,21 +51,15 @@ def init_unet(checkpoints_dir,gpu_num=str(0)):
    checkpoint_basename = ext_name_train
 
    ckpt_step="83006" #66667
-   #ckpt_step="66667" #66667
    checkpoint_file1=checkpoint_dir+ "/"+checkpoint_basename+"-"+ckpt_step+".data-00000-of-00001"
    checkpoint_file2=checkpoint_dir+ "/"+checkpoint_basename+"-"+ckpt_step+".index"
    checkpoint_file3=checkpoint_dir+ "/"+checkpoint_basename+"-"+ckpt_step+".meta"
-   	
+   
+   #Download Checkpoints
    if not os.path.isfile(checkpoint_file1) or not os.path.isfile(checkpoint_file2) or not os.path.isfile(checkpoint_file3):
 	print("Download checkpoint...")
 	trymakedir(checkpoints_dir)
 	trymakedir(checkpoint_dir)
-# 	gdd.download_file_from_google_drive(file_id='1gfpW6ps-YvajEdDwoWR48oqTHa52CgaH',
-#                                     dest_path=checkpoint_file1)
-# 	gdd.download_file_from_google_drive(file_id='1jld9wCH-tAPG0IDnsIwgytjbejNigR12',
-#                                     dest_path=checkpoint_file2)
-# 	gdd.download_file_from_google_drive(file_id='1fHD0IWtz4_SySEdHtpr-EESXrK_OS0Y3',
-#                                     dest_path=checkpoint_file3)	
 
 	gdd.download_file_from_google_drive(file_id='1MqzZx6cS2JHKF9zV06odC8j8johl13ND',
                                     dest_path=checkpoint_file1)
@@ -93,13 +87,17 @@ def init_unet(checkpoints_dir,gpu_num=str(0)):
 
 
 def unet_predict(T1_file,outputfile,unet,dims):
+	
     #load T1
     T1_img,T1_header,T1_aff=load_nib(T1_file)
     img=tf_resp(T1_img,dims)
+    
     #Predict segmentation    
     predictedSeg=unet.predict(img);
     predictedSeg=skresize( predictedSeg , T1_img.shape, mode='constant',order=0);
+    
     #save results
+    predictedSeg[predictedSeg==7]=0
     seg_T1_int_Struct = nib.Nifti1Image(integerize_seg(predictedSeg), affine=T1_aff, header=T1_header);
     seg_T1_int_Struct.to_filename(outputfile)    
     return predictedSeg

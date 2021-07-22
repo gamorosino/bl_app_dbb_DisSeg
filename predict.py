@@ -3,7 +3,7 @@
 """
 Created on Wed Jul 21 15:04:46 2021
 
-@author: gamorosino
+@author: Gabriele Amorosino
 """
 
 
@@ -21,7 +21,6 @@ dims=(IMG_WIDTH, IMG_HEIGHT, IMG_LENGTH)
 if __name__ == '__main__':
     
     ## Parsing Inputs
-
     parser = argparse.ArgumentParser(description='Predict segmentation')
     parser.add_argument('fullpath', metavar='T1', type=str, nargs='+',
                         help='fullpath of T1w file file')
@@ -34,7 +33,10 @@ if __name__ == '__main__':
     T1_file=args.fullpath[0]    
     outputfile=args.fullpath1[0]
     checkpoints_dir=args.fullpath2[0]
-
+    
+    ## initialize the U-Net
     unet=init_unet(checkpoints_dir,gpu_num=gpu_num)
+    
+    ## Perform prediction and save results
     unet_predict(T1_file,outputfile,unet,dims)
     
