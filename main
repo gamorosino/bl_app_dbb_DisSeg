@@ -26,7 +26,7 @@ if ! ( [ -z "${t1}" ]  || [  "${t1}" == "null" ] ); then
 
 	cp './data/label.json' ${outputdir}
 
-else  ! ( [ -z "${computed}" ]  || [  "${computed}" == "null" ] || [ -z "${groud_truth}" ]  || [  "${groud_truth}" == "null" ]   ); then
+elif  ! ( [ -z "${computed}" ]  || [  "${computed}" == "null" ] || [ -z "${groud_truth}" ]  || [  "${groud_truth}" == "null" ]   ); then
 
 	echo "computed: "${computed}
 	echo "groud_truth: "${groud_truth}
