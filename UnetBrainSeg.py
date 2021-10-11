@@ -9,9 +9,9 @@ Created on Tue May 11 15:06:37 2021
 
 
 import os
-from libraries.DATAMANlib import NormData,skresize,trymakedir,integerize_seg;
+from libraries.DATAMANlib import NormData,skresize,trymakedir,integerize_seg,get_data,NormImages
 from libraries.google_drive_downloader import GoogleDriveDownloader as gdd
-from libraries.UNET import UNET_3D_multiclass
+from libraries.UNET import UNET_3D_multiclass, ConfusionMatrix
 import nibabel as nib
 import numpy as np
 
@@ -103,4 +103,50 @@ def unet_predict(T1_file,outputfile,unet,dims):
     return predictedSeg
 
 
+def unet_test(TEST_PATH_x,TEST_PATH_y, unet, dims,iamge_type='float32',label_type='float32',ncores=1):
+    iamge_type=np.dtype(iamge_type)
+    label_type=np.dtype(label_type)
+    X_test, Y_test = get_data(TEST_PATH_x,TEST_PATH_y, iamge_type,label_type,dims,ncores=ncores)
+    ix=range(X_test.shape[0])
+    X_test=NormImages(X_test)
+    segs = unet.test(X_test,
+                    Y_test,
+                    indices=ix,
+                    plot=False,
+                    plot_separately=True,
+                    compute_accuracy=True,
+                    compute_metrics=True,
+                    plot_accuracy=False,
+                    print_separately=True,
+                    plot_ground_truth=False)
+    #np.save(Dice_score_list_file_all,unet.dice_score)
+    return segs
 
+def dice_score(predicted_file,gtruth_file ,seg_labels=None):
+    
+    predicted, _, _=load_nib(predicted_file)
+    gtruth, _, _=load_nib(gtruth_file)
+    
+    if seg_labels is None:
+                  seg_labels=np.unique(predicted)
+                  
+                  if np.any(seg_labels==0.0):
+                      seg_labels=np.delete(seg_labels, 0)
+                  print("labels found: "+str(seg_labels))
+
+    if isinstance(seg_labels, list) :
+                      seg_labels.sort()
+    elif isinstance(seg_labels, np.ndarray):
+                      np.sort(seg_labels)
+    elif isinstance(seg_labels, int):               
+                       seg_labels=[seg_labels]                 
+    else:
+                       seg_labels=[seg_labels]
+    
+    Dice_score=np.zeros(len(seg_labels))
+    for idx,value in enumerate(seg_labels): 
+        predicted_i=(predicted==value).astype(np.int)
+        gtruth_i=(gtruth==value).astype(np.int)
+        ConfMat = ConfusionMatrix(predicted_i, gtruth_i)
+        Dice_score[idx]=ConfMat.Dice_score
+    return Dice_score
