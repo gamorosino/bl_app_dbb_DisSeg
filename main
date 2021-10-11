@@ -36,7 +36,7 @@ elif  ! ( [ -z "${computed}" ]  || [  "${computed}" == "null" ] || [ -z "${groud
 	#mkdir -p ${outputdir}
 	#output=${outputdir}'/segmentation.nii.gz'
 
-	singularity exec -e  --nv docker://gamorosino/bl_app_dbb_disseg python dice_score.py  ${computed} ${groud_truth} 
+	singularity exec -e  --nv docker://gamorosino/bl_app_dbb_disseg python -m  dice_score.py  ${computed} ${groud_truth} 
 
 	
 
