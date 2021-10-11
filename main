@@ -7,20 +7,38 @@
 #parse config.json for input parameters 
 
 t1=$(jq -r .t1 config.json)
+computed=$(jq -r .computed config.json)
+groud_truth=$(jq -r .groud_truth config.json)
 
-echo "t1: "${t1}
 
+if ! ( [ -z "${t1}" ]  || [  "${t1}" == "null" ] ); then
 
-
-outputdir=${PWD}"/segmentation"
-mkdir -p ${outputdir}
-output=${outputdir}'/segmentation.nii.gz'
-
-chkcp_dir=${PWD}
-singularity exec -e  --nv docker://gamorosino/bl_app_dbb_disseg python predict.py  $t1 ${output} ${chkcp_dir} 
-
-cp './data/label.json' ${outputdir}
+	echo "t1: "${t1}
 
 
 
+	outputdir=${PWD}"/segmentation"
+	mkdir -p ${outputdir}
+	output=${outputdir}'/segmentation.nii.gz'
 
+	chkcp_dir=${PWD}
+	singularity exec -e  --nv docker://gamorosino/bl_app_dbb_disseg python predict.py  $t1 ${output} ${chkcp_dir} 
+
+	cp './data/label.json' ${outputdir}
+
+else  ! ( [ -z "${computed}" ]  || [  "${computed}" == "null" ] || [ -z "${groud_truth}" ]  || [  "${groud_truth}" == "null" ]   ); then
+
+	echo "computed: "${computed}
+	echo "groud_truth: "${groud_truth}
+
+
+	#outputdir=${PWD}"/segmentation"
+	#mkdir -p ${outputdir}
+	#output=${outputdir}'/segmentation.nii.gz'
+
+	singularity exec -e  --nv docker://gamorosino/bl_app_dbb_disseg python dice_score.py  ${computed} ${groud_truth} 
+
+	
+
+
+fi
