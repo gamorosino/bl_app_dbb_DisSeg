@@ -9,7 +9,7 @@ Created on Tue May 11 15:06:37 2021
 
 
 import os
-from libraries.DATAMANlib import NormData,skresize,trymakedir,integerize_seg,get_data,NormImages;
+from libraries.DATAMANlib import NormData,skresize,trymakedir,integerize_seg,get_data,NormImages
 from libraries.google_drive_downloader import GoogleDriveDownloader as gdd
 from libraries.UNET import UNET_3D_multiclass, ConfusionMatrix
 import nibabel as nib
