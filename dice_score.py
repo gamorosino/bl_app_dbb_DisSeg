@@ -35,7 +35,7 @@ if __name__ == '__main__':
 
     dice_score=dice_score(predicted_file,gtruth_file ,seg_labels=None)
     dice_score_list=list(dice_score.astype(str)
-    dice_score_str=''
+    dice_score_str=str()
     for x in dice_score_list:
 		dice_score_str=dice_score_str+x+' '
 	dice_score_str=dice_score_str.rstrip()
