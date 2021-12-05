@@ -35,6 +35,6 @@ if __name__ == '__main__':
 
     dice_score=dice_score(predicted_file,gtruth_file ,seg_labels=None)
 
-    os.system("echo "+''.join(dice_score)+" > "+output_file)
+    os.system("echo "+''.join(list(dice_score))+" > "+output_file)
 
                            
