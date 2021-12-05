@@ -35,8 +35,7 @@ if __name__ == '__main__':
 
     dice_score=dice_score(predicted_file,gtruth_file ,seg_labels=None)
     dice_score_list=list(dice_score.astype(str)
-    dice_score_str=" ".join(str(x) for x in dice_score_list)
 
-    os.system("echo "+dice_score_str+" > "+output_file)
+    os.system("echo "+" ".join(str(x) for x in dice_score_list)+" > "+output_file)
 
                            
