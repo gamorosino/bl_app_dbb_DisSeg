@@ -34,7 +34,9 @@ if __name__ == '__main__':
     #checkpoints_dir=args.fullpath2[0]
 
     dice_score=dice_score(predicted_file,gtruth_file ,seg_labels=None)
+    dice_score_list=list(dice_score.astype(str)
+    dice_score_str=" ".join(str(x) for x in dice_score_list)
 
-    os.system("echo "+''.join(list(dice_score.astype(str)))+" > "+output_file)
+    os.system("echo "+dice_score_str+" > "+output_file)
 
                            
