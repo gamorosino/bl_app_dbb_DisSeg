@@ -22,7 +22,7 @@ IMG_LENGTH = int(float(128 /divis ))
 fltr1stnmb=12;
 drop_rate=0.15
 loss_type="sparse_softmax_cross_entropy"
-ext_name_train="UNETBrainSeg"
+ext_name_train="DisSeg"
 
 #%%
 def tf_resp(T1_img,dims):    
