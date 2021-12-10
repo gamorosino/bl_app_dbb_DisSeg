@@ -101,7 +101,7 @@ def unet_predict(T1_file,outputfile,unet,dims,Mask_file=None):
     #Predict segmentation    
     predictedSeg=unet.predict(img);
     predictedSeg=skresize( predictedSeg , T1_img.shape, mode='constant',order=0);
-    if mask is not None:
+    if Mask_file is not None:
 		predictedSeg = predictedSeg * MaskArray_orig	    
     
     #save results
