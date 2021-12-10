@@ -35,7 +35,7 @@ if __name__ == '__main__':
     checkpoints_dir=args.fullpath2[0]
     
     ## initialize the U-Net
-    unet=init_unet(checkpoints_dir,gpu_num=gpu_num)
+    unet=init_unet(checkpoint_dir=None,checkpoint_basename=None,ckpt_step=None,checkpoints_dir=checkpoints_dir,gpu_num=gpu_num)
     
     ## Perform prediction and save results
     unet_predict(T1_file,outputfile,unet,dims)
