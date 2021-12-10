@@ -91,7 +91,7 @@ def init_unet(checkpoint_dir=None,checkpoint_basename=None,ckpt_step=None,checkp
 def unet_predict(T1_file,outputfile,unet,dims,Mask_file=None):
     #load T1
     T1_img,T1_header,T1_aff=load_nib(T1_file)
-    if mask is not None:
+    if Mask_file is not None:
 		MaskArray = nib.load(Mask_file).get_data()
 		MaskArray_orig=MaskArray.copy()
 		MaskArray = bDil(MaskArray, structure=None, iterations=1)
