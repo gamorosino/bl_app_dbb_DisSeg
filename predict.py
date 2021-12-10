@@ -24,11 +24,11 @@ if __name__ == '__main__':
     ## Inputs
     parser = argparse.ArgumentParser(description='Predict segmentation')
     parser.add_argument('fullpath', metavar='T1', type=str, nargs='+',
-                        help='fullpath of T1w file file', required=True)
+                        help='fullpath of T1w file file')
     parser.add_argument('fullpath1', metavar='output', type=str, nargs='+',
-                        help='fullpath of ouput segmentation file', required=True)
+                        help='fullpath of ouput segmentation file')
     parser.add_argument('fullpath2', metavar='checkpoints_dir', type=str, nargs='+',
-                        help='fullpath of checkpoints directories', required=True)   
+                        help='fullpath of checkpoints directories')   
     parser.add_argument('--mask', metavar='mask', type=str, nargs='+',
                         help='fullpath of brain mask file', required=False)   
 
