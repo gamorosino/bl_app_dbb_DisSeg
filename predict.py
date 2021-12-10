@@ -38,7 +38,7 @@ if __name__ == '__main__':
     checkpoints_dir=args.fullpath2[0]
     if args.mask[0]:
 		mask=args.mask[0]
-	else:
+    else:
 		mask=None
 		
    ## initialize the U-Net
