@@ -20,7 +20,7 @@ dims=(IMG_WIDTH, IMG_HEIGHT, IMG_LENGTH)
 
 if __name__ == '__main__':
     
-    ## Parsing Inputs
+    ## Inputs
     parser = argparse.ArgumentParser(description='Predict segmentation')
     parser.add_argument('fullpath', metavar='T1', type=str, nargs='+',
                         help='fullpath of T1w file file')

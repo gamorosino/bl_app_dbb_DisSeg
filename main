@@ -7,8 +7,27 @@
 #parse config.json for input parameters 
 
 t1=$(jq -r .t1 config.json)
+mask=$(jq -r .mask config.json)
 computed=$(jq -r .computed config.json)
 groud_truth=$(jq -r .groud_truth config.json)
+
+imm_histmatch () {
+	
+			if [ $# -lt 3 ]; then							# usage of the function							
+		    			echo $0: usage: "imm_histmatch <input.ext> <reference.ext> [<output.ext>]"		
+		    			return 1
+			fi	
+	
+				local input=$1
+				local reference=$2
+				local output=$3
+	
+	
+				ImageMath 3  ${output} HistogramMatch ${input} ${reference}
+
+	
+	
+				}
 
 
 if ! ( [ -z "${t1}" ]  || [  "${t1}" == "null" ] ); then
@@ -20,9 +39,16 @@ if ! ( [ -z "${t1}" ]  || [  "${t1}" == "null" ] ); then
 	outputdir=${PWD}"/segmentation"
 	mkdir -p ${outputdir}
 	output=${outputdir}'/segmentation.nii.gz'
+	proc_dir=${PWD}"/proc/"
+	mkdir -p ${proc_dir}
+	reference='./data/IMAGE_0426.nii.gz'
 
+	t1_hm=${proc_dir}'/t1_hm.nii.gz'
+	singularity exec -e docker://brainlife/ants:2.2.0-1bc imm_histmatch  ${t1} ${reference} ${t1_hm} 
+
+	t1_bg=${proc_dir}'/t1_bg.nii.gz'
 	chkcp_dir=${PWD}
-	singularity exec -e  --nv docker://gamorosino/bl_app_dbb_disseg python  predict.py  $t1 ${output} ${chkcp_dir} 
+	singularity exec -e  --nv docker://gamorosino/bl_app_dbb_disseg python set_bg.py ${t1_hm} ${mask} ${t1_bg}; python  predict.py  $t1 ${output} ${chkcp_dir} 
 
 	cp './data/label.json' ${outputdir}
 

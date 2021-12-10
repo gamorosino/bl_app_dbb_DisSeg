@@ -22,6 +22,7 @@ IMG_LENGTH = int(float(128 /divis ))
 fltr1stnmb=12;
 drop_rate=0.15
 loss_type="sparse_softmax_cross_entropy"
+ext_name_train="UNETBrainSeg"
 
 #%%
 def tf_resp(T1_img,dims):    
@@ -38,34 +39,33 @@ def load_nib(T1_file):
     T1_img = T1_Struct.get_data();
     return T1_img,T1_header,T1_aff
 
-def init_unet(checkpoints_dir,gpu_num=str(0)):
+def init_unet(checkpoint_dir=None,checkpoint_basename=None,ckpt_step=None,checkpoints_dir=None,gpu_num=str(0),num_labels=7):
 
-   data_type_train="DATA_3D_T1_segment_8tms"
-   ext_name_train="UNET_"+data_type_train
-
+   
    fbname=str(IMG_WIDTH)+'x'+str(IMG_HEIGHT)+'x'+str(IMG_LENGTH)
-   script_version="0.2.9.2.6.1"
-   softmax_str="nosoftmax"
-   checkpoint_dir = checkpoints_dir + "/checkpoints/"+ext_name_train+"_"+script_version+"_"+fbname+"_"+"filter"+str(fltr1stnmb)+"_dp"+str(drop_rate)+"_"+loss_type+"_"+softmax_str+"/"
-   print('checkpoint dir: '+checkpoint_dir)  
-   checkpoint_basename = ext_name_train
+   if checkpoint_dir is None:
+       trymakedir(checkpoints_dir)
+       checkpoint_dir = checkpoints_dir + "/checkpoints/"+ext_name_train+"_"+fbname+"_"+"filter"+str(fltr1stnmb)+"_dp"+str(drop_rate)+"_"+loss_type+"/"
+       print(checkpoint_dir) 
+   if checkpoint_basename is None:
+       checkpoint_basename = ext_name_train
 
-   ckpt_step="83006" #66667
+   if ckpt_step is None:
+       ckpt_step="24202"
    checkpoint_file1=checkpoint_dir+ "/"+checkpoint_basename+"-"+ckpt_step+".data-00000-of-00001"
    checkpoint_file2=checkpoint_dir+ "/"+checkpoint_basename+"-"+ckpt_step+".index"
    checkpoint_file3=checkpoint_dir+ "/"+checkpoint_basename+"-"+ckpt_step+".meta"
-   
-   #Download Checkpoints
+   	
    if not os.path.isfile(checkpoint_file1) or not os.path.isfile(checkpoint_file2) or not os.path.isfile(checkpoint_file3):
 	print("Download checkpoint...")
-	trymakedir(checkpoints_dir)
+	
 	trymakedir(checkpoint_dir)
 
-	gdd.download_file_from_google_drive(file_id='1MqzZx6cS2JHKF9zV06odC8j8johl13ND',
+	gdd.download_file_from_google_drive(file_id='',
                                     dest_path=checkpoint_file1)
-	gdd.download_file_from_google_drive(file_id='1fDgEzSUJp5DJbFUo4GNNGSuby7PLolWh',
+	gdd.download_file_from_google_drive(file_id='',
                                     dest_path=checkpoint_file2)
-	gdd.download_file_from_google_drive(file_id='1P_Fk0eb2YEURXHkqp1Ek0WJab77K6aRH',
+	gdd.download_file_from_google_drive(file_id='',
                                     dest_path=checkpoint_file3)	
    checkpoint_file=checkpoint_dir+ "/checkpoint"
    
@@ -76,28 +76,25 @@ def init_unet(checkpoints_dir,gpu_num=str(0)):
 	   for line in [model_checkpoint_path,all_model_checkpoint_paths]:
 		 print >>outF, line
 	   outF.close()
+
    unet = UNET_3D_multiclass( loss_type=loss_type,
                                           drop_rate=drop_rate,
                                           filter1stnumb=fltr1stnmb,
                                           ckpt_dir=checkpoint_dir,
                                           ckpt_basename=checkpoint_basename,
-                                          ckpt_step=ckpt_step,gpu_num=gpu_num,num_labels=8)
+                                          ckpt_step=ckpt_step,gpu_num=gpu_num,num_labels=num_labels)
 
    return unet
 
 
 def unet_predict(T1_file,outputfile,unet,dims):
-	
     #load T1
     T1_img,T1_header,T1_aff=load_nib(T1_file)
     img=tf_resp(T1_img,dims)
-    
     #Predict segmentation    
     predictedSeg=unet.predict(img);
     predictedSeg=skresize( predictedSeg , T1_img.shape, mode='constant',order=0);
-    
     #save results
-    predictedSeg[predictedSeg==7]=0
     seg_T1_int_Struct = nib.Nifti1Image(integerize_seg(predictedSeg), affine=T1_aff, header=T1_header);
     seg_T1_int_Struct.to_filename(outputfile)    
     return predictedSeg
