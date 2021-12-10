@@ -14,6 +14,7 @@ from libraries.google_drive_downloader import GoogleDriveDownloader as gdd
 from libraries.UNET import UNET_3D_multiclass, ConfusionMatrix
 import nibabel as nib
 import numpy as np
+from scipy.ndimage.morphology import  binary_dilation as bDil
 
 divis=0.5
 IMG_WIDTH = int(float(128 / divis))
@@ -87,13 +88,22 @@ def init_unet(checkpoint_dir=None,checkpoint_basename=None,ckpt_step=None,checkp
    return unet
 
 
-def unet_predict(T1_file,outputfile,unet,dims):
+def unet_predict(T1_file,outputfile,unet,dims,Mask_file=None):
     #load T1
     T1_img,T1_header,T1_aff=load_nib(T1_file)
+    if mask is not None:
+		MaskArray = nib.load(Mask_file).get_data()
+		MaskArray_orig=MaskArray.copy()
+		MaskArray = bDil(MaskArray, structure=None, iterations=1)
+		T1_img = ( MaskArray * T1_img ) +  (  2000 * ( MaskArray == 0 ) )
+		
     img=tf_resp(T1_img,dims)
     #Predict segmentation    
     predictedSeg=unet.predict(img);
     predictedSeg=skresize( predictedSeg , T1_img.shape, mode='constant',order=0);
+    if mask is not None:
+		predictedSeg = predictedSeg * MaskArray_orig	    
+    
     #save results
     seg_T1_int_Struct = nib.Nifti1Image(integerize_seg(predictedSeg), affine=T1_aff, header=T1_header);
     seg_T1_int_Struct.to_filename(outputfile)    
@@ -147,3 +157,5 @@ def dice_score(predicted_file,gtruth_file ,seg_labels=None):
         ConfMat = ConfusionMatrix(predicted_i, gtruth_i)
         Dice_score[idx]=ConfMat.Dice_score
     return Dice_score
+
+
