@@ -14,7 +14,7 @@ groud_truth=$(jq -r .groud_truth config.json)
 if ! ( [ -z "${t1}" ]  || [  "${t1}" == "null" ] ); then
 
 	echo "t1: "${t1}
-
+	echo "mask: "${mask}
 
 
 	outputdir=${PWD}"/segmentation"

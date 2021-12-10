@@ -76,7 +76,7 @@ def init_unet(checkpoint_dir=None,checkpoint_basename=None,ckpt_step=None,checkp
 	   for line in [model_checkpoint_path,all_model_checkpoint_paths]:
 		 print >>outF, line
 	   outF.close()
-
+   print("checkpoint_dir: "+checkpoint_dir)
    unet = UNET_3D_multiclass( loss_type=loss_type,
                                           drop_rate=drop_rate,
                                           filter1stnumb=fltr1stnmb,
