@@ -3,7 +3,7 @@
 	t1=$1
 	mask=$2
 	outputdir=$3
-	if [ $# -lt 1 ]; then												
+	if [ $# -lt 2 ]; then												
 		echo $0: "usage: "$( basename $0 )" <t1.ext> <mask.ext> [<outputdir>]"
 		return 1;		    
 	fi 
