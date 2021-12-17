@@ -5,7 +5,7 @@
 	outputdir=$3
 	if [ $# -lt 2 ]; then												
 		echo $0: "usage: "$( basename $0 )" <t1.ext> <mask.ext> [<outputdir>]"
-		return 1;		    
+		exit -1;		    
 	fi 
 
 	echo "t1: "${t1}

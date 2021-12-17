@@ -22,8 +22,7 @@ Brainlife CLI could be installed on UNIX/Linux-based system following the instru
 
 you can run the App with CLI as follow:
 ```
-bl app run --id 60f83394b99111089ab55f80  --project <project_id> --input t0:<t1_object_id> \
---input mask:<mask_object_id> 
+bl app run --id 60f83394b99111089ab55f80  --project <project_id> --input t0:<t1_object_id> --input mask:<mask_object_id> 
 ```
 the output is stored in the reference project specified with the id ```<project_id>```. You can retrieve the _object_id_ using the command ```bl data query```, e.g to get the id of the mask file for the subject _0001_ :
 ```
@@ -78,4 +77,4 @@ You can run the tool to reproduce the results on the test set of DBB Distorted B
 run_test.sh <outputdir>
 ```
 
-The script performs the download of the published dataset of the DBB benchmark (https://doi.org/10.25663/brainlife.pub.24) and predict the segmentation volume for each subjects. Furthermore, compute the dice score using the published groundtruth and create the final _csv_ file reporting the dice score for each label of the segmented voluem.
+The script performs the download of the published dataset of the DBB benchmark (https://doi.org/10.25663/brainlife.pub.24) and predict the segmentation volume for each subjects. Furthermore, compute the dice score using the published groundtruth and create the final _csv_ file reporting the dice score for each label of the segmented volumes.
