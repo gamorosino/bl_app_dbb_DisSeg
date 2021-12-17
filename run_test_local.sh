@@ -7,5 +7,5 @@ bash ${SCRIPT_DIR}/download_testset.sh
 mkdir -p ${outputdir}
 tag_list=( ACC PFM MCDs HD )
 for tag in ${tag_list[@]}; do
-	bash ${SCRIPT_DIR}/predict_testset.sh ${download_dir}'/'${tag}'/'proj-${project_id} ${outputdir}'/'${tag}
+	bash ${SCRIPT_DIR}/predict_testset_local.sh ${download_dir}'/'${tag}'/'proj-${project_id} ${outputdir}'/'${tag}
 done
