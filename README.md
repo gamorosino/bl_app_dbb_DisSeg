@@ -98,7 +98,9 @@ ANTs, Advanced Normalization Tools (version >= 2.1.0)
 
 In order to use the script, the following software must be installed:
 * ANTs, Advanced Normalization Tools (version >= 2.1.0)
+
 It is also necessary that Python 2.7.x is installed, with the following modules:
+
 * scikit-image=0.14.2 
 * requests=2.22.0 
 * nibabel=2.5.1 
