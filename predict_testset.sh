@@ -106,6 +106,7 @@ for i in $( ls ${testset_dir}/* -d ); do
 done
 
 csv_file=${output_dir}'/dice_score.csv'
+csv_file_average=${output_dir}'/dice_score_average.csv'
 
 echo "Subject_Id CSF GM WM DGM Brainstem Cerebellum"
 
