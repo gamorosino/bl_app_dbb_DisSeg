@@ -97,17 +97,17 @@ In order to use the script, the following software must be installed:
 ANTs, Advanced Normalization Tools (version >= 2.1.0)
 
 In order to use the script, the following software must be installed:
-*ANTs, Advanced Normalization Tools (version >= 2.1.0)
+* ANTs, Advanced Normalization Tools (version >= 2.1.0)
 It is also necessary that Python 2.7.x is installed, with the following modules:
-*scikit-image=0.14.2 
-*requests=2.22.0 
-*nibabel=2.5.1 
-*pydicom=1.3.0 
-*tqdm=4.38.0 
-*pyvista 
-*vtk=8.1.2 
-*libnetcdf=4.6.2
-*tensorflow-gpu=1.10.0 
+* scikit-image=0.14.2 
+* requests=2.22.0 
+* nibabel=2.5.1 
+* pydicom=1.3.0 
+* tqdm=4.38.0 
+* pyvista 
+* vtk=8.1.2 
+* libnetcdf=4.6.2
+* tensorflow-gpu=1.10.0 
 
 It is suggested to install python modules using conda. 
 ```
