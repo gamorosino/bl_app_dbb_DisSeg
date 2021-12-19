@@ -6,7 +6,8 @@ download_dir=./'DBB_test'
 bash ${SCRIPT_DIR}/download_testset.sh
 mkdir -p ${outputdir}
 tag_list=( ACC PFM MCDs HD )
-csv_all=${outputdir}'/dice_score_all.csv'
+csv_all=${outputdir}'/average_dice_score.csv'
+echo 'Category, CSF, GM, WM, DGM, Brainstem, Cerebellum' > ${csv_all}
 printf '' > ${csv_all}
 for tag in ${tag_list[@]}; do
 	bash ${SCRIPT_DIR}/predict_testset.sh ${download_dir}'/'${tag}'/'proj-${project_id} ${outputdir}'/'${tag}
