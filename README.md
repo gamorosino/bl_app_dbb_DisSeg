@@ -70,11 +70,67 @@ The output of bl_app_dbb_DisSeg are the predicted segmentation volume of the 3D 
 
 The files are stored in the working directory, under the folder _./segmentation_  with the name _segmentation.nii.gz_ , for the semgnetaion volume and _label.json_, for the json file.
 
-#### Run test on DBB Distorted Brain testset
 
-You can run the tool to reproduce the results on the test set of DBB Distorted Brain Benchmark using the scritp:
+### Run the script (local software) 
+
+Clone this repository using git on your local machine to run this script.
+
+### Usage
+
+
+```
+
+main_local.sh <t1.ext> <mask.ext> [<outputdir>]
+
+```
+
+#### Output
+
+The output of bl_app_dbb_DisSeg are the predicted segmentation volume of the 3D U-Net and a json file describing the labels of the segmented volume.         
+
+The files are stored in the working directory, under the folder _./segmentation_  with the name _segmentation.nii.gz_ , for the semgnetaion volume and _label.json_, for the json file.
+
+
+####  Script Dependecies
+
+In order to use the script, the following software must be installed:
+ANTs, Advanced Normalization Tools (version >= 2.1.0)
+
+In order to use the script, the following software must be installed:
+*ANTs, Advanced Normalization Tools (version >= 2.1.0)
+It is also necessary that Python 2.7.x is installed, with the following modules:
+*scikit-image=0.14.2 
+*requests=2.22.0 
+*nibabel=2.5.1 
+*pydicom=1.3.0 
+*tqdm=4.38.0 
+*pyvista 
+*vtk=8.1.2 
+*libnetcdf=4.6.2
+*tensorflow-gpu=1.10.0 
+
+It is suggested to install python modules using conda. 
+```
+conda install -c anaconda python=2.7 scikit-image=0.14.2 \
+      && conda install -c anaconda python=2.7 requests=2.22.0 \
+      && conda install -c conda-forge nibabel=2.5.1 \
+      && conda install -c conda-forge pydicom=1.3.0 \
+      && conda install -c conda-forge tqdm=4.38.0 \
+      && conda install -c anaconda tensorflow-gpu=1.10.0 \
+      && conda install -c conda-forge pyvista "vtk=8.1.2" "libnetcdf=4.6.2"
+```
+
+## Run test on DBB Distorted Brain testset
+
+You can run the tool to reproduce the results on the test set of DBB Distorted Brain Benchmark using the scritp with dockers:
 ```
 run_test.sh <outputdir>
 ```
+or with local softwares installed:
 
-The script performs the download of the published dataset of the DBB benchmark (https://doi.org/10.25663/brainlife.pub.24) and predict the segmentation volume for each subjects. Furthermore, compute the dice score using the published groundtruth and create the final _csv_ file reporting the dice score for each label of the segmented volumes.
+```
+run_test_local.sh <outputdir>
+```
+
+The script performs the download of the published dataset of the DBB benchmark (https://doi.org/10.25663/brainlife.pub.24) and predict the segmentation volume for each subjects. 
+Furthermore, compute the dice score using the published groundtruth and create the final _csv_ file reporting the dice score for each label of the segmented volumes.
