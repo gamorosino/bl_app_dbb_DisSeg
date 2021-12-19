@@ -7,7 +7,8 @@ bash ${SCRIPT_DIR}/download_testset.sh
 mkdir -p ${outputdir}
 tag_list=( ACC PFM MCDs HD )
 csv_all=${outputdir}'/dice_score_all.csv'
+printf '' > ${csv_all}
 for tag in ${tag_list[@]}; do
 	bash ${SCRIPT_DIR}/predict_testset.sh ${download_dir}'/'${tag}'/'proj-${project_id} ${outputdir}'/'${tag}
-	echo ${tag},$( cat ${outputdir}'/'${tag}'/dice_score_average.csv' ) > ${csv_all}
+	echo ${tag},$( cat ${outputdir}'/'${tag}'/dice_score_average.csv' ) >> ${csv_all}
 done
