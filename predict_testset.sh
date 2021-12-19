@@ -122,7 +122,8 @@ for i in $( ls ${output_dir}/* -d ); do
 	DGM_ds[$idx]=${dice_score_v[3]}
 	BS_ds[$idx]=${dice_score_v[4]}
 	Cereb_ds[$idx]=${dice_score_v[5]}
-	echo $( basename ${i} ) $( cat ${i}'/dice_score.txt' ) >> ${csv_file}
+	dss=$( cat ${i}'/dice_score.txt' )
+	echo $( basename ${i} ),${dss//' '/','}  >> ${csv_file}
 
 done
 
@@ -133,7 +134,7 @@ DGM_mean=$( array_mean ${DGM_ds[@]} )
 BS_mean=$( array_mean ${BS_ds[@]} )
 Cereb_mean=$( array_mean ${Cereb_ds[@]} )
 echo >> ${csv_file}
-echo Average ${CSF_mean} ${GM_mean} ${WM_mean} ${DGM_mean} ${BS_mean} ${Cereb_mean} >> ${csv_file}
+echo Average,${CSF_mean},${GM_mean},${WM_mean},${DGM_mean},${BS_mean},${Cereb_mean} >> ${csv_file}
 
 
 
@@ -144,4 +145,6 @@ DGM_stdev=$( array_stdev ${DGM_ds[@]} )
 BS_stdev=$( array_stdev ${BS_ds[@]} )
 Cereb_stdev=$( array_stdev ${Cereb_ds[@]} )
 echo >> ${csv_file}
-echo STD ${CSF_stdev} ${GM_stdev} ${WM_stdev} ${DGM_stdev} ${BS_stdev} ${Cereb_stdev} >> ${csv_file}
+echo STD,${CSF_stdev} ${GM_stdev} ${WM_stdev} ${DGM_stdev} ${BS_stdev} ${Cereb_stdev} >> ${csv_file}
+
+echo  ${CSF_mean} "("${CSF_stdev}")",${GM_mean}  "("${GM_stdev}")",${WM_mean} "("${WM_stdev}")",${DGM_mean} "("${DGM_stdev}")",${BS_mean} "("${BS_stdev}")",${Cereb_mean} "("${Cereb_stdev}")" > ${csv_file_average}
