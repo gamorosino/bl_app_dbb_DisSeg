@@ -80,40 +80,30 @@ array_stdev () {
 ########################################################################
 
 
-predict_script=${SCRIPT_DIR}/"predict_subjects.sh"
+predict_script=${SCRIPT_DIR}/"main.sh"
 disce_score_script=${SCRIPT_DIR}/"dice_score.sh"
-reference=${SCRIPT_DIR}'/data/IMAGE_0426.nii.gz'
 [ -z ${output_dir} ] && { output_dir=${testset_dir}'/bids/derivatives/bl_app_dbb_DisSeg/' ; }
 mkdir -p ${output_dir}
-
-singularity exec -e docker://brainlife/ants:2.2.0-1bc bash ${SCRIPT_DIR}/"hm_subjects.sh" ${testset_dir}
-
-#for i in $( ls ${testset_dir}/* -d ); do
-#	b_name_i=$( basename ${i} )
-#	[ "${b_name_i}" == "bids" ] && { continue; }
-#	[ -d ${i} ] || { continue; }
-#	echo ${i}
-#	t1_i=$( ls ${i}'/dt-neuro-anat-t1w.id-'*/'t1.nii.gz' )
-#	mask_i=$( ls ${i}'/dt-neuro-mask.id-'*/'mask.nii.gz' )
-#	parc_i=$( ls ${i}'/dt-neuro-parcellation-volume.id-'*/'parc.nii.gz' )
-#	echo 't1': ${t1_i}
-#	echo 'mask': ${mask_i}
-#	echo 'parc': ${parc_i}
-#	output_dir_i=${output_dir}'/'$( basename ${i}  )'/'
-#	echo ${output_dir_i}
-#	mkdir -p ${output_dir_i}
-#	output_seg=${output_dir_i}'/segmentation.nii.gz'	
-#	#[ $( exists $output_seg ) -eq 0 ] && { bash ${predict_script} ${t1_i} ${mask_i} ${output_dir_i}'/' ; }	
-#	input_dir=$( dirname ${t1_i} )
-#	proc_dir=${input_dir}"/proc/"
-#	t1_hm=${proc_dir}'/t1_hm.nii.gz'
-#	 ImageMath 3 ${t1_hm}  HistogramMatch ${t1_i} ${reference}  
-#
-#done
-
-
-singularity exec -e  --nv docker://gamorosino/bl_app_dbb_disseg bash ${predict_script} ${testset_dir} ${output_dir}
-
+for i in $( ls ${testset_dir}/* -d ); do
+	b_name_i=$( basename ${i} )
+	[ "${b_name_i}" == "bids" ] && { continue; }
+	[ -d ${i} ] || { continue; }
+	echo ${i}
+	t1_i=$( ls ${i}'/dt-neuro-anat-t1w.id-'*/'t1.nii.gz' )
+	mask_i=$( ls ${i}'/dt-neuro-mask.id-'*/'mask.nii.gz' )
+	parc_i=$( ls ${i}'/dt-neuro-parcellation-volume.id-'*/'parc.nii.gz' )
+	echo 't1': ${t1_i}
+	echo 'mask': ${mask_i}
+	echo 'parc': ${parc_i}
+	output_dir_i=${output_dir}'/'$( basename ${i}  )'/'
+	echo ${output_dir_i}
+	mkdir -p ${output_dir_i}
+	output_seg=${output_dir_i}'/segmentation.nii.gz'	
+	[ $( exists $output_seg ) -eq 0 ] && { bash ${predict_script} ${t1_i} ${mask_i} ${output_dir_i}'/' ; }	
+	dice_score=${output_dir_i}'/dice_score.txt'
+	bash ${disce_score_script} ${output_seg} ${parc_i} ${dice_score}
+	cat ${dice_score}
+done
 
 csv_file=${output_dir}'/dice_score.csv'
 csv_file_average=${output_dir}'/dice_score_average.csv'
@@ -123,9 +113,6 @@ echo "Subject_Id CSF GM WM DGM Brainstem Cerebellum"
 echo "Subject_Id CSF GM WM DGM Brainstem Cerebellum" > ${csv_file}
 idx=0
 for i in $( ls ${output_dir}/* -d ); do
-	b_name_i=$( basename ${i} )
-	[ "${b_name_i}" == "bids" ] && { continue; }
-	[ -d ${i} ] || { continue; }
 	idx=$(( $idx + 1 ))
 	echo $( basename ${i} ) $( cat ${i}'/dice_score.txt' )
 	dice_score_v=( $( cat ${i}'/dice_score.txt' ) )
