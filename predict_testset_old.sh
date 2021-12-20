@@ -80,7 +80,7 @@ array_stdev () {
 ########################################################################
 
 
-predict_script=${SCRIPT_DIR}/"main.sh"
+predict_script=${SCRIPT_DIR}/"main_n_dice.sh"
 disce_score_script=${SCRIPT_DIR}/"dice_score.sh"
 [ -z ${output_dir} ] && { output_dir=${testset_dir}'/bids/derivatives/bl_app_dbb_DisSeg/' ; }
 mkdir -p ${output_dir}
@@ -99,9 +99,12 @@ for i in $( ls ${testset_dir}/* -d ); do
 	echo ${output_dir_i}
 	mkdir -p ${output_dir_i}
 	output_seg=${output_dir_i}'/segmentation.nii.gz'	
-	[ $( exists $output_seg ) -eq 0 ] && { bash ${predict_script} ${t1_i} ${mask_i} ${output_dir_i}'/' ; }	
+	#[ $( exists $output_seg ) -eq 0 ] && { bash ${predict_script} ${t1_i} ${mask_i} ${output_dir_i}'/' ; }	
 	dice_score=${output_dir_i}'/dice_score.txt'
-	bash ${disce_score_script} ${output_seg} ${parc_i} ${dice_score}
+	bash ${predict_script} ${t1_i} ${mask_i} ${output_dir_i}'/' ${parc_i} ${dice_score}
+	#bash ${disce_score_script} ${output_seg} ${parc_i} ${dice_score}
+							
+	
 	cat ${dice_score}
 done
 

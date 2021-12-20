@@ -71,7 +71,7 @@ The output of bl_app_dbb_DisSeg are the predicted segmentation volume of the 3D 
 The files are stored in the working directory, under the folder _./segmentation_  with the name _segmentation.nii.gz_ , for the semgnetaion volume and _label.json_, for the json file.
 
 
-### Run the script (local software) 
+### Run the script (local installed softwares) 
 
 Clone this repository using git on your local machine to run this script.
 
