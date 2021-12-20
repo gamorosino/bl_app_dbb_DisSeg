@@ -133,6 +133,5 @@ or with local softwares installed:
 ```
 run_test_local.sh <outputdir>
 ```
-
-The script performs the download of the published dataset of the DBB benchmark (https://doi.org/10.25663/brainlife.pub.24) and predict the segmentation volume for each subjects. 
-Furthermore, compute the dice score using the published groundtruth and creates the final _csv_ file, _average_dice_score.csv_, reporting the dice score for each label of the segmented volumes.
+The script performs the download of the published dataset of the DBB benchmark (https://doi.org/10.25663/brainlife.pub.24) and predicts the segmentation volume for each subject. 
+Furthermore, compute the dice score using the published ground-truth and create the final _csv_ file, _average_dice_score.csv_, reporting the dice score for each label of the segmented volumes.
