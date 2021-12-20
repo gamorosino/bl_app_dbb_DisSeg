@@ -124,7 +124,7 @@ conda install -c anaconda python=2.7 scikit-image=0.14.2 \
 
 ## Run test on DBB Distorted Brain testset
 
-You can run the tool to reproduce the results on the test set of DBB Distorted Brain Benchmark using the scritp with dockers:
+You can run the tool to reproduce the results on the test set of DBB Distorted Brain Benchmark using the script with dockers:
 ```
 run_test.sh <outputdir>
 ```
