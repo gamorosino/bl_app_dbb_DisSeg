@@ -1,7 +1,7 @@
 #! /bin/bash
 tag_list=( ACC PFM MCDs HD )
 #pub_id=$1
-output_dir=./'DBB_test'
+output_dir=$1
 mkdir -p ${output_dir}
 for tag in ${tag_list[@]}; do
 	mkdir -p ${output_dir}'/'${tag}
