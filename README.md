@@ -119,16 +119,16 @@ conda install -c anaconda python=2.7 scikit-image=0.14.2 \
       && conda install -c conda-forge pyvista "vtk=8.1.2" "libnetcdf=4.6.2"
 ```
 
-## Run test on DBB Distorted Brain testset
+## Run test on DBB Distorted Brain Benchmark testset
 
 You can run the tool to reproduce the results on the test set of DBB Distorted Brain Benchmark using the script with dockers:
 ```
-run_test.sh <outputdir>
+run_test.sh <download_dir.ext> <output_dir>
 ```
 or with local softwares installed:
 
 ```
-run_test_local.sh <outputdir>
+run_test_local.sh <download_dir.ext> <output_dir>
 ```
-The script performs the download of the published dataset of the DBB benchmark (https://doi.org/10.25663/brainlife.pub.24) and predicts the segmentation volume for each subject. 
-Furthermore, compute the dice score using the published ground-truth and create the final _csv_ file, _average_dice_score.csv_, reporting the dice score for each label of the segmented volumes.
+The script performs the download of the published testset of the DBB benchmark (https://doi.org/10.25663/brainlife.pub.24) in the folder ```<download_dir>```. Then, the script predicts the segmentation volume for each subject and stores the results in ```<output_dir>```. 
+Finally, compute the dice score using the published ground-truth and create the final _csv_ file, _average_dice_score.csv_ (stored in ``<output_dir>```), reporting the average dice score across the subjects for each label of the segmented volumes.
