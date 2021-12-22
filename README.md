@@ -20,7 +20,13 @@ You can see DBB_DisSeg currently registered on Brainlife. Find the App on _brain
 
 Brainlife CLI could be installed on UNIX/Linux-based system following the instruction reported in https://brainlife.io/docs/cli/install/.
 
-you can run the App with CLI as follow:
+The first time you use the _BrainLife_ _CLI_ on a machine, you need to log in with the brainlife.io credentials
+
+```
+bl login
+```
+
+You can run the App with CLI as follow:
 ```
 bl app run --id 60f83394b99111089ab55f80  --project <project_id> --input t1:<t1_object_id> --input mask:<mask_object_id> 
 ```
