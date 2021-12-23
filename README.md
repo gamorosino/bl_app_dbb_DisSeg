@@ -125,7 +125,7 @@ conda install -c anaconda python=2.7 scikit-image=0.14.2 \
       && conda install -c conda-forge pyvista "vtk=8.1.2" "libnetcdf=4.6.2"
 ```
 
-## Run test on DBB Distorted Brain Benchmark testset
+## Run test on DBB Distorted Brain Benchmark test set
 
 You can run the tool to reproduce the results on the test set of DBB Distorted Brain Benchmark using the script with dockers:
 ```
