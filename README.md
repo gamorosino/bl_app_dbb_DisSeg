@@ -146,5 +146,4 @@ Amorosino G. et al. (2020) Automatic Tissue Segmentation with Deep Learning in P
 Kia S.M. et al. (eds) Machine Learning in Clinical Neuroimaging and Radiogenomics in Neuro-oncology. MLCN 2020, RNO-AI 2020. Lecture Notes in Computer 
 Science, vol 12449. Springer, Cham. https://doi.org/10.1007/978-3-030-66843-3_2
 
-
 ```
