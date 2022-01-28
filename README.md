@@ -140,7 +140,7 @@ run_test_local.sh <download_dir> <output_dir>
 The script performs the automatic download of the published testset (using [`brainlife CLI`](https://brainlife.io/docs/cli/install/)) of the DBB benchmark (https://doi.org/10.25663/brainlife.pub.24) in the folder ```<download_dir>```. Then, the script predicts the segmentation volume for each subject and stores the results in ```<output_dir>```. 
 Finally, the script computes the dice score between the predicted segmentation and the test set ground-truth, and create the final _csv_ file, _average_dice_score.csv_ (stored in ```<output_dir>```), reporting the average dice score across the subjects for each label of the segmented volumes.
 
-If you use this code for you research please cite:
+If you use this code for your research please cite:
 
 ```
 Amorosino G. et al. (2020) Automatic Tissue Segmentation with Deep Learning in Patients with Congenital or Acquired Distortion of Brain Anatomy. In: 
