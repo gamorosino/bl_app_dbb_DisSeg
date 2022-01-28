@@ -44,7 +44,7 @@ RUN  conda install -c anaconda python=2.7 scikit-image=0.14.2 \
       && conda install -c conda-forge nibabel=2.5.1 \
       && conda install -c conda-forge pydicom=1.3.0 \
       && conda install -c conda-forge tqdm=4.38.0 \
-      && conda install -c anaconda tensorflow-gpu=1.10.0 \
+      && conda install -c anaconda tensorflow-gpu=1.10.0 cudatoolkit=9.0\
       && conda install -c conda-forge pyvista "vtk=8.1.2" "libnetcdf=4.6.2"
       
 
