@@ -113,6 +113,7 @@ It is also necessary that Python 2.7.x is installed, with the following modules:
 * vtk=8.1.2 
 * libnetcdf=4.6.2
 * tensorflow-gpu=1.10.0 
+* Cuda toolkit 9.0 or 9.1
 
 It is suggested to install python modules using conda. 
 ```
