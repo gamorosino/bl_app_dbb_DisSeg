@@ -11,7 +11,7 @@ import argparse
 from UnetBrainSeg import init_unet,unet_predict
 
 
-gpu_num=str(1)
+gpu_num=str(0)
 IMG_WIDTH = 256
 IMG_HEIGHT = 256
 IMG_LENGTH = 256
