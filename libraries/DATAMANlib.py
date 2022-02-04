@@ -4,12 +4,12 @@
 Created on Thu Jun 27 10:02:00 2019
 #########################################################################################################################
 #########################################################################################################################
-###################		            							                                        ###################
+###################                                                                                   ###################
 ################### title:                      DATA MANIPULATION LIBRARY                             ###################
-###################		           							                                        ###################
-###################	 description:                                                                    ###################
-###################	 version:	    0.2.2.1                                                          ###################
-###################	 notes:	        need to Install: py modules - nibabel, multiprocessing,          ###################
+###################                                                                                   ###################
+###################	 description:                                                                     ###################
+###################	 version:	    0.2.4.1                                                           ###################
+###################	 notes:	        need to Install: py modules - nibabel, multiprocessing,           ###################
 ###################                                               tqdm, skimage                       ###################
 ###################                                                                                   ###################             
 ###################    bash version:   tested on GNU bash, version 4.3.48                             ###################
@@ -19,7 +19,7 @@ Created on Thu Jun 27 10:02:00 2019
 #########################################################################################################################
 #########################################################################################################################
 ###################                                                                                   ###################
-###################       update: minor changes                                                       ###################
+###################       update: added load_pickle amd save_pickle                                   ###################
 #########################################################################################################################
 #########################################################################################################################
 
@@ -32,7 +32,7 @@ from functools import partial
 from multiprocessing import Pool
 from tqdm import tqdm
 from skimage.transform import resize as skresize
-
+import pickle
 def trymakedir(path):
     try:
         os.mkdir(path)
@@ -130,30 +130,38 @@ def close_pool(pool):
 
 
 
-def get_data_pool(train_ids,mask_ids,PATH_x,PATH_y,dims,squeeze,i):
+def get_data_pool(train_ids,mask_ids,PATH_x,PATH_y,dims,squeeze,i): 
+        ldims=list(dims)+[1]
         id_=train_ids[i]
-        path = PATH_x + id_
-        
+        if isinstance(PATH_x, list):
+				path = id_
+				id_ = os.path.basename(path)
+        else:
+				path = PATH_x + id_     
+			        
         fbasename_img=fbasename(id_)
         fbasename_img_num=fbasename_img[fbasename_img.rfind("_")+1:]
-        
+
         if PATH_y is not  None:
-            mask_path=PATH_y + mask_ids[i]
-            fbasename_mask=fbasename(mask_ids[i])
+            if isinstance(PATH_y, list):
+					mask_path = mask_ids[i]
+					mask_id = os.path.basename(mask_path)
+            else:				
+					mask_id = mask_ids[i]
+					mask_path=PATH_y + mask_id
+            fbasename_mask=fbasename(mask_id)        
             fbasename_mask_num=fbasename_mask[fbasename_mask.rfind("_")+1:]
-        
             if not fbasename_img_num == fbasename_mask_num:
                   raise ValueError(" mismatch between "+path+ " and "+mask_path)
         else:
-            mask_=None
-        ldims=list(dims)+[1]
+            mask_=None           
         img = np.zeros(ldims, dtype=np.float32)      
         print("load img: "+path)
         try:
                     
                     img = loadArray(path)
                     if squeeze:
-			img = np.squeeze(img)
+                        img = np.squeeze(img)
         except:
               print("error with "+path )
               #raise ValueError(" Cannot work out file type of"+path)
@@ -202,13 +210,21 @@ def get_data(PATH_x,PATH_y, image_type_, label_type_,dims,squeeze=False,ncores=1
     if ncores == 1:
 
 	    # Get train and test IDs
-	    train_ids = next(os.walk(PATH_x))[2]
+	    
+	    if isinstance(PATH_x, list):
+			train_ids = PATH_x
+	    else:
+			train_ids = next(os.walk(PATH_x))[2]
+			
 	    train_ids.sort()
 	    ldims=[len(train_ids)]+list(dims)+[1]
 	    if PATH_y is not None:
-        	    mask_ids = next(os.walk(PATH_y))[2]
-        	    mask_ids.sort()
-        	    labels = np.zeros(ldims, dtype=label_type)
+			if isinstance(PATH_y, list):
+				mask_ids = PATH_y
+			else:
+			    mask_ids = next(os.walk(PATH_y))[2]
+			mask_ids.sort()
+			labels = np.zeros(ldims, dtype=label_type)
 	    # Get and resize train images and masks
 	    images = np.zeros(ldims, dtype=image_type)
 	    
@@ -217,16 +233,28 @@ def get_data(PATH_x,PATH_y, image_type_, label_type_,dims,squeeze=False,ncores=1
 	    for i, id_ in tqdm(enumerate(train_ids), total=len(train_ids)):
 		
 			id_=train_ids[i]
-			path = PATH_x + id_
+			if isinstance(PATH_x, list):
+				path = id_
+				id_ = os.path.basename(path)
+			else:
+				path = PATH_x + id_
 			
 			fbasename_img=fbasename(id_)
 			fbasename_img_num=fbasename_img[fbasename_img.rfind("_")+1:]
             if PATH_y is not None:
-						mask_path=PATH_y + mask_ids[i]
-						fbasename_mask=fbasename(mask_ids[i])
-						fbasename_mask_num=fbasename_mask[fbasename_mask.rfind("_")+1:]
-						if not fbasename_img_num == fbasename_mask_num:
-												raise ValueError(" mismatch between "+path+ " and "+mask_path)
+				
+				if isinstance(PATH_y, list):
+					mask_path = mask_ids[i]
+					mask_id = os.path.basename(mask_path)
+				else:				
+					mask_id = mask_ids[i]
+					mask_path=PATH_y + mask_id
+					
+				fbasename_mask=fbasename(mask_id)
+				
+				fbasename_mask_num=fbasename_mask[fbasename_mask.rfind("_")+1:]
+				if not fbasename_img_num == fbasename_mask_num:
+						raise ValueError(" mismatch between "+path+ " and "+mask_path)
             img = np.zeros(dims, dtype=np.float32)
             img=np.expand_dims(img,axis=-1)          
             
@@ -282,14 +310,23 @@ def get_data(PATH_x,PATH_y, image_type_, label_type_,dims,squeeze=False,ncores=1
 	    return X.astype(image_type), Y.astype(label_type)
     else:
    
-      
-	      train_ids = next(os.walk(PATH_x))[2]
+	      if isinstance(PATH_x, list):
+			train_ids = PATH_x
+	      else:
+			train_ids = next(os.walk(PATH_x))[2]
+			
+	      train_ids.sort()	      
+	     
+	     
 	      if PATH_y is not None:
-	      	      mask_ids = next(os.walk(PATH_y))[2]
-	      	      mask_ids.sort()
+    			if isinstance(PATH_y, list):
+    				mask_ids = PATH_y
+    			else:
+    			    mask_ids = next(os.walk(PATH_y))[2]
+    			mask_ids.sort()
+
 	      else:
                  mask_ids = None       
-	      train_ids.sort()
 
 	      func = partial(get_data_pool,train_ids,mask_ids,PATH_x,PATH_y,dims,squeeze)
 	      p = Pool(ncores)
@@ -330,4 +367,45 @@ def get_data(PATH_x,PATH_y, image_type_, label_type_,dims,squeeze=False,ncores=1
 
 
 
+def data_partition(TRAIN_PATH_x_list,TRAIN_PATH_y_list,train_i,trnngset_div):
 
+          fraction=len(TRAIN_PATH_x_list)/trnngset_div
+          first_idx=(train_i)*fraction
+          last_idx=(train_i+1)*fraction
+          if train_i==trnngset_div:
+              last_idx=len(TRAIN_PATH_x_list)
+          TRAIN_PATH_x = TRAIN_PATH_x_list[first_idx:last_idx]
+          TRAIN_PATH_y = TRAIN_PATH_y_list[first_idx:last_idx]
+          return TRAIN_PATH_x,TRAIN_PATH_y
+
+def data_split(TRAIN_PATH_x_list,TRAIN_PATH_y_list,portion):
+          TRAIN_PATH_x_list.sort()
+          TRAIN_PATH_y_list.sort()
+          nn=len(TRAIN_PATH_x_list)
+          fraction=int(round(nn*portion))
+          p = np.random.permutation(nn)
+          TRAIN_PATH_x_list=list(np.array(TRAIN_PATH_x_list)[p])
+          TRAIN_PATH_y_list=list(np.array(TRAIN_PATH_y_list)[p])
+          TRAIN_PATH_x_list
+          VALID_PATH_x = TRAIN_PATH_x_list[0:fraction]
+          VALID_PATH_y = TRAIN_PATH_y_list[0:fraction]
+          TRAIN_PATH_y_list=TRAIN_PATH_y_list[fraction:]
+          TRAIN_PATH_x_list=TRAIN_PATH_x_list[fraction:]
+          VALID_PATH_x.sort()
+          VALID_PATH_y.sort()
+          TRAIN_PATH_x_list.sort()
+          TRAIN_PATH_y_list.sort()
+          return TRAIN_PATH_x_list,TRAIN_PATH_y_list,VALID_PATH_x,VALID_PATH_y
+
+def load_pickle(filename):
+    try:
+        with open(filename, "rb") as f:
+            output = pickle.load(f)
+    except:
+        output =  []
+    return output
+
+
+def save_pickle(filename,data,protocol=2):
+    with open(filename, "wb") as f:
+        pickle.dump(data, f, protocol=2)
