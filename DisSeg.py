@@ -357,7 +357,7 @@ def get_trainingset(TRAIN_PATH_x,TRAIN_PATH_y,renovate_trainingset,keep_path_lis
 			  occurrences_x=[i for i in VALID_PATH_x_list if i in TRAIN_PATH_x_list ]          
 			  occurrences_y=[i for i in VALID_PATH_y_list if i in TRAIN_PATH_y_list ]          
 			  if len(occurrences_x)!=0 or len(occurrences_y)!=0:
-				  print('error: found a common element in the validation set and in the training set. Please re-run the script with the --re-trainingset option')
+				  print('error: found a common element in the validation set and in the training set. Please re-run the script with the --re-trainingset option'); sys.exit()
               
 			  
           return  [X_train, Y_train,X_train_files,Y_train_files, X_validate, Y_validate, X_validate_file, Y_validate_file,TRAIN_PATH_x_list,TRAIN_PATH_y_list, VALID_PATH_x_list, VALID_PATH_y_list]
