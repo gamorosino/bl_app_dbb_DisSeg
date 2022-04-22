@@ -52,7 +52,7 @@ def init_unet(checkpoint_dir=None,checkpoint_basename=None,ckpt_step=None,checkp
        checkpoint_basename = ext_name_train
 
    if ckpt_step is None:
-       ckpt_step="24202"
+       ckpt_step="24274"#"24111"#"25021"#"24467"#"24202"#"24221"
    checkpoint_file1=checkpoint_dir+ "/"+checkpoint_basename+"-"+ckpt_step+".data-00000-of-00001"
    checkpoint_file2=checkpoint_dir+ "/"+checkpoint_basename+"-"+ckpt_step+".index"
    checkpoint_file3=checkpoint_dir+ "/"+checkpoint_basename+"-"+ckpt_step+".meta"
@@ -62,11 +62,13 @@ def init_unet(checkpoint_dir=None,checkpoint_basename=None,ckpt_step=None,checkp
 	
 	trymakedir(checkpoint_dir)
 
-	gdd.download_file_from_google_drive(file_id='',
+
+
+	gdd.download_file_from_google_drive(file_id='1hcm_LIDsmtnopkK7380E9xr8RgFkjkMa-',
                                     dest_path=checkpoint_file1)
-	gdd.download_file_from_google_drive(file_id='',
+	gdd.download_file_from_google_drive(file_id='10AfOmscVoUiiu01s_v1VpC05gXnR1k3w',
                                     dest_path=checkpoint_file2)
-	gdd.download_file_from_google_drive(file_id='',
+	gdd.download_file_from_google_drive(file_id='1DU3e1SKHQhpDTzPAwVXzrpiolhsiiMa9',
                                     dest_path=checkpoint_file3)	
    checkpoint_file=checkpoint_dir+ "/checkpoint"
    
