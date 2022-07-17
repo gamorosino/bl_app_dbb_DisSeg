@@ -1,6 +1,6 @@
 # bl_app_dbb_DisSeg
 
-This application implement a 3D U-Net for brain tissue segmentation.
+This application implements a 3D U-Net for brain tissue segmentation. This implementation of 3D U-Net is used as the baseline method in the Distorted Brain Benchmark (DBB) for automatic tissue segmentation in paediatric patients.
 
 ### Author
 
