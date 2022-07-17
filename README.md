@@ -6,6 +6,17 @@ This application implement a 3D U-Net for brain tissue segmentation.
 
     Gabriele Amorosino (gamorosino@fbk.eu)
 
+### Citation
+
+If you use this code for your research please cite:
+
+```
+Gabriele Amorosino, Denis Peruzzo, Daniela Redaelli, Emanuele Olivetti, Filippo Arrigoni, Paolo Avesani,
+DBB - A Distorted Brain Benchmark for Automatic Tissue Segmentation in Paediatric Patients,
+NeuroImage, 2022, 119486, ISSN 1053-8119, https://doi.org/10.1016/j.neuroimage.2022.119486.
+```
+
+
 ## Running the Brainlife App
 
 
@@ -138,13 +149,4 @@ or with local softwares installed:
 run_test_local.sh <download_dir> <output_dir>
 ```
 The script performs the automatic download of the published testset (using [`brainlife CLI`](https://brainlife.io/docs/cli/install/)) of the DBB benchmark (https://doi.org/10.25663/brainlife.pub.24) in the folder ```<download_dir>```. Then, the script predicts the segmentation volume for each subject and stores the results in ```<output_dir>```. 
-Finally, the script computes the dice score between the predicted segmentation and the test set ground-truth, and create the final _csv_ file, _average_dice_score.csv_ (stored in ```<output_dir>```), reporting the average dice score across the subjects for each label of the segmented volumes.
-
-If you use this code for your research please cite:
-
-```
-Amorosino G. et al. (2020) Automatic Tissue Segmentation with Deep Learning in Patients with Congenital or Acquired Distortion of Brain Anatomy. In: 
-Kia S.M. et al. (eds) Machine Learning in Clinical Neuroimaging and Radiogenomics in Neuro-oncology. MLCN 2020, RNO-AI 2020. Lecture Notes in Computer 
-Science, vol 12449. Springer, Cham. https://doi.org/10.1007/978-3-030-66843-3_2
-
-```
+Finally, the script computes the dice score between the predicted segmentation and the test set ground-truth, and create the final _csv_ file, named _average_dice_score.csv_ (stored in ```<output_dir>```), reporting the average dice score across the subjects for each label of the segmented volumes.
