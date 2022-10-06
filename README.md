@@ -77,6 +77,8 @@ To avoid using the config file, you can input directly the fullpath of the files
 main.sh <t1.ext> <mask.ext> [<outputdir>]
 ```
 
+If you want to avoid performing the histogram matching on the reference image, you can specify the ```--no-histmatch``` option
+
 #### Script Dependecies
 
 The App needs   `singularity` to run.
