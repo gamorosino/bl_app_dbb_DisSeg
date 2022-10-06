@@ -2,11 +2,27 @@
 	SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/"	
 	t1=$1
 	mask=$2
-	outputdir=$3
+
 	if [ $# -lt 2 ]; then												
-		echo $0: "usage: "$( basename $0 )" <t1.ext> <mask.ext> [<outputdir>]"
+		echo $0: "usage: "$( basename $0 )" <t1.ext> <mask.ext> [<outputdir>] [--no-histmatch]"
 		exit -1;		    
 	fi 
+	# As long as there is at least one more argument, keep looping
+	input_3="$3"
+	while [[ $# -gt 0 ]]; do
+		key="$3"
+		case "$key" in
+			--no-histmatch)
+			no_hm=1
+			;;
+			 *)
+
+			[ -z ${input_3} ] || {	outputdir=${input_3} ; }
+			;;
+		esac
+		# Shift after checking all the cass to get the next option
+		shift
+	done
 
 	echo "t1: "${t1}
 	echo "mask: "${mask}
@@ -21,7 +37,13 @@
 	reference=${SCRIPT_DIR}'/data/IMAGE_0426.nii.gz'
 
 	t1_hm=${proc_dir}'/t1_hm.nii.gz'
-	ImageMath 3 ${t1_hm}  HistogramMatch ${t1} ${reference}  
+	
+	if [ ${no_hm} == 0 ]; then
+		echo "perfroms histogram matching on reference image"
+		ImageMath 3 ${t1_hm}  HistogramMatch ${t1} ${reference}  
+	else
+		ImageMath 3  ${t1_hm} Normalize  ${t1} ${mask}  && ImageMath 3 ${t1_hm} m ${t1_hm} 100  
+	fi
 
 	chkcp_dir=${SCRIPT_DIR}
 	
