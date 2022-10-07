@@ -74,10 +74,10 @@ Launch the app by executing `main`.
 To avoid using the config file, you can input directly the fullpath of the filess using the script ```main.sh```:
 
 ```
-main.sh <t1.ext> <mask.ext> [<outputdir>]
+main.sh <t1.ext> <mask.ext> [<outputdir>] [--no-histmatch]
 ```
+the ```--no-histmatch``` option can be used if you want to avoid performing histogram matching on the reference image.
 
-If you want to avoid performing the histogram matching on the reference image, you can specify the ```--no-histmatch``` option
 
 #### Script Dependecies
 
@@ -99,7 +99,7 @@ Clone this repository using git on your local machine to run this script.
 
 ```
 
-main_local.sh <t1.ext> <mask.ext> [<outputdir>]
+main_local.sh <t1.ext> <mask.ext> [<outputdir>] [--no-histmatch]
 
 ```
 
