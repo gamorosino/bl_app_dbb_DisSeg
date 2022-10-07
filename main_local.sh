@@ -28,6 +28,7 @@
 	echo "mask: "${mask}
 	input_dir=$( dirname ${t1} )
 	[ -z ${outputdir} ] && { outputdir=${input_dir}"/segmentation" ; }
+	[ -z ${no_hm} ] && { no_hm=0 ; }
 	echo "outputdir: "${outputdir}
 	
 	mkdir -p ${outputdir}
@@ -38,8 +39,7 @@
 
 	t1_hm=${proc_dir}'/t1_hm.nii.gz'
 	
-	if [ ${no_hm} == 0 ]; then
-		echo "perfroms histogram matching on reference image"
+	if [ ${no_hm} -eq 0 ]; then
 		ImageMath 3 ${t1_hm}  HistogramMatch ${t1} ${reference}  
 	else
 		ImageMath 3  ${t1_hm} Normalize  ${t1} ${mask}  && ImageMath 3 ${t1_hm} m ${t1_hm} 100  

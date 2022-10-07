@@ -38,8 +38,7 @@
 	reference=${SCRIPT_DIR}'/data/IMAGE_0426.nii.gz'
 
 	t1_hm=${proc_dir}'/t1_hm.nii.gz'
-	if [ ${no_hm} == 0 ]; then
-		echo "perfroms histogram matching on reference image"
+	if [ ${no_hm} -eq 0 ]; then
 		singularity exec -e docker://brainlife/ants:2.2.0-1bc ImageMath 3 ${t1_hm}  HistogramMatch ${t1} ${reference}  
 	else
 		singularity exec -e docker://brainlife/ants:2.2.0-1bc  ImageMath 3  ${t1_hm} Normalize  ${t1} ${mask}  && ImageMath 3 ${t1_hm} m ${t1_hm} 100  
