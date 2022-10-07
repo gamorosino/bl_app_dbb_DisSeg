@@ -76,7 +76,7 @@ To avoid using the config file, you can input directly the fullpath of the files
 ```
 main.sh <t1.ext> <mask.ext> [<outputdir>] [--no-histmatch]
 ```
-the ```--no-histmatch``` option can be used if you want to avoid performing histogram matching on the reference image.
+where the ```--no-histmatch``` option can be used if you want to avoid performing histogram matching on the reference image.
 
 
 #### Script Dependecies
