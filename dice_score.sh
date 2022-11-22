@@ -4,9 +4,9 @@
 	computed=${1}
 	groud_truth=${2}
 	output=$3
-	if [ $# -lt 1 ]; then												
+	if [ $# -lt 2 ]; then												
 		echo $0: "usage: "$( basename $0 )" <segmentation1.ext> <segmentation2.ext> [<output>]"
-		return 1;		    
+		exit -1;		    
 	fi 
 
 
