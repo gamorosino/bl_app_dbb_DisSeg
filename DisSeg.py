@@ -600,7 +600,7 @@ if __name__ == '__main__':
           
             if not train_flag:
               drop_rate=0.0
-            #TODO:  imm_width=IMG_WIDTH, imm_height=IMG_HEIGHT for reshape inputs
+
             unet = UNET_3D_multiclass( loss_type=loss_type,
                                           drop_rate=drop_rate,
                                           use_softmax=use_softmax,
@@ -661,7 +661,8 @@ if __name__ == '__main__':
                                                     plot_accuracy=False)
                                     acc_list.append(np.mean(unet.accuracy_avg))
                                     np.save(acc_list_file,np.array(acc_list))
-                                    if compute_metrics_flag:
+                                    try:
+                                        if compute_metrics_flag:
                                           
                                           Precision_list.append(np.mean(unet.precision_avg))
                                           F1_score_list.append(np.mean(unet.f1_score_avg))
@@ -671,14 +672,50 @@ if __name__ == '__main__':
                                           Sensitivity_list.append(np.mean(unet.sensitivity_avg))
                                           Specificity_list.append(np.mean(unet.specificity_avg))
                                           Dice_score_list_file_all.append(unet.dice_score)
-                                          np.save(Precision_list_file,np.array(Precision_list))
-                                          np.save(F1_score_list_file,np.array(F1_score_list))
-                                          np.save(MCC_list_file,np.array(MCC_list))
-                                          np.save(Youden_index_list_file,np.array(Youden_index_list))
-                                          np.save(Dice_score_list_file,np.array(Dice_score_list))
-                                          np.save(Sensitivity_list_file,np.array(Sensitivity_list))
-                                          np.save(Specificity_list_file,np.array(Specificity_list))
-                                          np.save(Dice_score_list_file_all_file,unet.dice_score)
+                                    except:
+                                        print('fail to retrive metrics')
+																			
+                                    try:
+                                        np.save(Precision_list_file,np.array(Precision_list))
+										
+                                    except:
+										print("fail to save file: "+Precision_list_file)
+                                    try:
+                                        np.save(F1_score_list_file,np.array(F1_score_list))
+										
+                                    except:
+										print("fail to save file: "+F1_score_list)
+                                    try:
+                                        np.save(MCC_list_file,np.array(MCC_list))
+										
+                                    except:
+										print("fail to save file: "+MCC_list_file)
+                                    try:
+                                        np.save(Youden_index_list_file,np.array(Youden_index_list))
+										
+                                    except:
+										print("fail to save file: "+Youden_index_list_file)
+                                    try:
+                                        np.save(Dice_score_list_file,np.array(Dice_score_list))
+										
+                                    except:
+										print("fail to save file: "+Dice_score_list_file)
+                                    try:
+                                        np.save(Sensitivity_list_file,np.array(Sensitivity_list))
+										
+                                    except:
+										print("fail to save file: "+Sensitivity_list_file)
+                                    try:
+                                        np.save(Specificity_list_file,np.array(Specificity_list))
+										
+                                    except:
+										print("fail to save file: "+Specificity_list_file)
+                                    try:
+                                        np.save(Dice_score_list_file_all_file,unet.dice_score)
+										
+                                    except:
+										print("fail to save file: "+Dice_score_list_file_all_file)                                          
+                                          
                               except:
                                    fail_list.append(ix)
                                    print("fail: idx "+str(ix))
