@@ -174,9 +174,11 @@ def input_parsing(argv):
    cores=2
    num_labels=None
    keep_path_list=False
+   fltr1stnmb=12
+   dims = 256
    
    try:
-      opts, args = getopt.getopt(argv,"htperaki:l:g:m:u:b:d:c:q:s:j:n:o:",["training","predict","test","re-trainingset","re-test","--keep-pathlist","images=","labels=","gpunum=","model-dir=","output=","batch-size=","training-div=","checkpoint-dir=","checkpoint-basename=","checkpoint-step=","num-threads=","num-classes="])
+      opts, args = getopt.getopt(argv,"htperaki:l:g:m:u:b:d:c:q:s:j:n:o:f:",["training","predict","test","re-trainingset","re-test","--keep-pathlist","images=","labels=","gpunum=","model-dir=","batch-size=","training-div=","checkpoint-dir=","checkpoint-basename=","checkpoint-step=","num-threads=","num-classes=","output=","num-1stfilter=","dims="])
    except getopt.GetoptError:
       print('error:')
       print sys.argv[0]+' [--trainig | --test | --predict] [-k] --images <path> [--labels <path>] [-m <path>] [-o <path>] [-g <num>] [-b <num>] [-d <num>] [-c <path>] [ -q <path>] [ -s <str> ] [ -j <num> ] [ -n <num> ]'
@@ -219,13 +221,27 @@ def input_parsing(argv):
          cores = int(arg)
       elif opt in ("-n", "--num-classes"):
          num_labels = int(arg)
+      elif opt in ("-n", "--num-1stfilter"):
+         fltr1stnmb = int(arg)
+      elif opt in ("-p", "--shape"):
+         try:
+			shape_ = int(arg)
+			IMG_WIDTH = shape
+			IMG_HEIGHT = shape
+			IMG_LENGTH = shape    
+			dims = (shape_,shape_,shape_)    
+		except:
+			dims = tuple(np.array(list(arg.replace(',','').replace('[','').replace(']','').replace(')','').replace('(',''))).astype(int))
+			IMG_WIDTH = dims[0]
+			IMG_HEIGHT = dims[1]
+			IMG_LENGTH = dims[2]   
       elif opt in ("-k", "--keep-pathlist"):
          keep_path_list = True
    if (test_flag is False) and  (train_flag is False) and (predict_flag is False):
           print("specify at least one of the following option: --training|-t or --test|-e or --predict|-p")
           sys.exit()  
 
-   return train_flag,test_flag,predict_flag,PATH_x,PATH_y,model_dir,gpu_num,renovate_traningset,renovate_testset,btch_s,trnngset_div,checkpoint_dir,checkpoint_basename,checkpoint_step, cores,output,num_labels,keep_path_list
+   return train_flag,test_flag,predict_flag,PATH_x,PATH_y,model_dir,gpu_num,renovate_traningset,renovate_testset,btch_s,trnngset_div,checkpoint_dir,checkpoint_basename,checkpoint_step, cores,output,num_labels,keep_path_list,fltr1stnmb,dims
 
 def get_trainingset(TRAIN_PATH_x,TRAIN_PATH_y,renovate_trainingset,keep_path_list,trnngset_div,train_i,validate_flag,ext_image_filename,ext_label_filename,dims,ncores=1):
 	
@@ -374,12 +390,14 @@ if __name__ == '__main__':
       #~#~#~#~#~#~#~#~#~#~#~#~#            Input Parsing        #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
       #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
 
-      train_flag,test_flag,predict_flag,PATH_x,PATH_y,model_dir,gpu_num,renovate_trainingset,renovate_testset,btch_s,trnngset_div,checkpoint_dir,checkpoint_basename,checkpoint_step, cores,output,num_labels,keep_path_list=input_parsing(sys.argv[1:])
+      train_flag,test_flag,predict_flag,PATH_x,PATH_y,model_dir,gpu_num,renovate_trainingset,renovate_testset,btch_s,trnngset_div,checkpoint_dir,checkpoint_basename,checkpoint_step, cores,output,num_labels,keep_path_list,fltr1stnmb,dims=input_parsing(sys.argv[1:])
 
       print('training: ' +str(train_flag))
       print('test:'+str(test_flag))
       print('predict:'+str(predict_flag))
-      print('images path:'+PATH_x)
+      print('images path:'+PATH_x)  
+      print('dimensions:'+str(dims))
+      print('filter:'+str(fltr1stnmb))
       if PATH_y is not None:
 		print('labels path:'+PATH_y)
       if model_dir is not None:
