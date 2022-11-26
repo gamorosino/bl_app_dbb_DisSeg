@@ -10,7 +10,7 @@ Created on Thu Oct  7 10:41:42 2021
 ###################      title:            3D UNET for Brain Tissues Segmentation                     ###################
 ###################                                                                                   ###################
 ###################	 description:                                                                     ###################
-###################	 version:     0.5.1.0.0                                                           ###################
+###################	 version:     0.5.2.0.0                                                           ###################
 ###################	 notes:	        need to Install: py modules - tf,matplotlib,nibabel,skimage       ###################
 ###################                                                                                   ###################
 ###################                                                                                   ###################
@@ -67,7 +67,6 @@ image_type_str='float32'
 label_type_str='float32'
 
 loss_type="sparse_softmax_cross_entropy"
-fltr1stnmb=12 #32
 
 
 
@@ -108,16 +107,6 @@ compute_metrics_flag=True
 
 tb_port=6060
 
-
-divis=0.5
-IMG_WIDTH = int(float(128 / divis))
-IMG_HEIGHT = int(float(128 / divis))
-IMG_LENGTH = int(float(128 / divis))  
-IMG_CHANNELS = 1
-fbname=str(IMG_WIDTH)+'x'+str(IMG_HEIGHT)+'x'+str(IMG_LENGTH)
-
-dims = (IMG_HEIGHT,IMG_WIDTH,IMG_LENGTH)
-
 if image_type_str == label_type_str:
       type_str=image_type_str
 else:
@@ -131,10 +120,6 @@ TRAIN_PATH_y=None
 TEST_PATH_x=None
 TEST_PATH_y=None
 
-
-ext_name_train="UNETBrainSeg"
-ext_name_test="UNETBrainSeg"
-metrics_bname=ext_name_train+"_"+fbname+"_"+type_str+"_"+"filter"+str(fltr1stnmb)+"_btchs"+str(btch_s)+"_iter"+str(iterations)+"_dp"+str(drop_rate)+"_"+loss_type
 
 #%%
 ########################################################################################################################
@@ -174,11 +159,15 @@ def input_parsing(argv):
    cores=2
    num_labels=None
    keep_path_list=False
-   fltr1stnmb=12
-   dims = 256
-   
+   fltr1stnmb=12 #32
+   divis=0.5
+   IMG_WIDTH = int(float(128 / divis))
+   IMG_HEIGHT = int(float(128 / divis))
+   IMG_LENGTH = int(float(128 / divis))  
+   IMG_CHANNELS = 1 
+   dims = (IMG_WIDTH,IMG_HEIGHT,IMG_LENGTH)  
    try:
-      opts, args = getopt.getopt(argv,"htperaki:l:g:m:u:b:d:c:q:s:j:n:o:f:",["training","predict","test","re-trainingset","re-test","--keep-pathlist","images=","labels=","gpunum=","model-dir=","batch-size=","training-div=","checkpoint-dir=","checkpoint-basename=","checkpoint-step=","num-threads=","num-classes=","output=","num-1stfilter=","dims="])
+      opts, args = getopt.getopt(argv,"htperaki:l:g:m:u:b:d:c:q:s:j:n:o:f:z:",["training","predict","test","re-trainingset","re-test","--keep-pathlist","images=","labels=","gpunum=","model-dir=","batch-size=","training-div=","checkpoint-dir=","checkpoint-basename=","checkpoint-step=","num-threads=","num-classes=","output=","num-1stfilter=","dims="])
    except getopt.GetoptError:
       print('error:')
       print sys.argv[0]+' [--trainig | --test | --predict] [-k] --images <path> [--labels <path>] [-m <path>] [-o <path>] [-g <num>] [-b <num>] [-d <num>] [-c <path>] [ -q <path>] [ -s <str> ] [ -j <num> ] [ -n <num> ]'
@@ -221,16 +210,16 @@ def input_parsing(argv):
          cores = int(arg)
       elif opt in ("-n", "--num-classes"):
          num_labels = int(arg)
-      elif opt in ("-n", "--num-1stfilter"):
+      elif opt in ("-f", "--num-1stfilter"):
          fltr1stnmb = int(arg)
-      elif opt in ("-p", "--shape"):
+      elif opt in ("-z", "--dims"):
          try:
 			shape_ = int(arg)
-			IMG_WIDTH = shape
-			IMG_HEIGHT = shape
-			IMG_LENGTH = shape    
+			IMG_WIDTH = shape_
+			IMG_HEIGHT = shape_
+			IMG_LENGTH = shape_    
 			dims = (shape_,shape_,shape_)    
-		except:
+         except:
 			dims = tuple(np.array(list(arg.replace(',','').replace('[','').replace(']','').replace(')','').replace('(',''))).astype(int))
 			IMG_WIDTH = dims[0]
 			IMG_HEIGHT = dims[1]
@@ -333,8 +322,8 @@ def get_trainingset(TRAIN_PATH_x,TRAIN_PATH_y,renovate_trainingset,keep_path_lis
 					save_pickle(TRAIN_PATH_y_list_file, TRAIN_PATH_y_list)
                 
                 TRAIN_PATH_x,TRAIN_PATH_y = data_partition(TRAIN_PATH_x_list,TRAIN_PATH_y_list,train_i,trnngset_div)
-                print  TRAIN_PATH_x
-                print  TRAIN_PATH_y
+                #print  TRAIN_PATH_x
+                #print  TRAIN_PATH_y
                 start_time_load = time.time()
                 X_train, Y_train = get_data(TRAIN_PATH_x,TRAIN_PATH_y, iamge_type,label_type,dims,ncores=cores)
                 X_train = StandData(X_train, X_train)
@@ -412,6 +401,15 @@ if __name__ == '__main__':
       
       #Set Gpu device
       os.environ["CUDA_VISIBLE_DEVICES"]=gpu_num
+
+      IMG_WIDTH = dims[0]
+      IMG_HEIGHT = dims[1]
+      IMG_LENGTH = dims[2]  
+      fbname=str(IMG_WIDTH)+'x'+str(IMG_HEIGHT)+'x'+str(IMG_LENGTH)
+      ext_name_train="UNETBrainSeg"
+      ext_name_test="UNETBrainSeg"
+      metrics_bname=ext_name_train+"_"+fbname+"_"+type_str+"_"+"filter"+str(fltr1stnmb)+"_btchs"+str(btch_s)+"_iter"+str(iterations)+"_dp"+str(drop_rate)+"_"+loss_type
+
       
       
       if test_flag:
