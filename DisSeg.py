@@ -167,7 +167,7 @@ def input_parsing(argv):
    IMG_CHANNELS = 1 
    dims = (IMG_WIDTH,IMG_HEIGHT,IMG_LENGTH)  
    try:
-      opts, args = getopt.getopt(argv,"htperaki:l:g:m:u:b:d:c:q:s:j:n:o:f:z:",["training","predict","test","re-trainingset","re-test","--keep-pathlist","images=","labels=","gpunum=","model-dir=","batch-size=","training-div=","checkpoint-dir=","checkpoint-basename=","checkpoint-step=","num-threads=","num-classes=","output=","num-1stfilter=","dims="])
+      opts, args = getopt.getopt(argv,"htperaki:l:g:m:u:b:d:c:q:s:j:n:o:f:z:x:",["training","predict","test","re-trainingset","re-test","--keep-pathlist","images=","labels=","gpunum=","model-dir=","batch-size=","training-div=","checkpoint-dir=","checkpoint-basename=","checkpoint-step=","num-threads=","num-classes=","output=","num-1stfilter=","dims=","valid-split="])
    except getopt.GetoptError:
       print('error:')
       print sys.argv[0]+' [--trainig | --test | --predict] [-k] --images <path> [--labels <path>] [-m <path>] [-o <path>] [-g <num>] [-b <num>] [-d <num>] [-c <path>] [ -q <path>] [ -s <str> ] [ -j <num> ] [ -n <num> ]'
@@ -195,7 +195,7 @@ def input_parsing(argv):
       elif opt in ("-o", "--output"):
          output = arg
       elif opt in ("-g", "--gpunum"):
-         gpu_num = str(arg);
+         gpu_num = str(arg)
       elif opt in ("-b", "--batch-size"):
          btch_s = int(arg)
       elif opt in ("-d", "--trainingset-div"):
@@ -212,6 +212,9 @@ def input_parsing(argv):
          num_labels = int(arg)
       elif opt in ("-f", "--num-1stfilter"):
          fltr1stnmb = int(arg)
+      elif opt in ("-x", "--valid-split"):
+         validation_portion = float(arg)
+
       elif opt in ("-z", "--dims"):
          try:
 			shape_ = int(arg)
@@ -230,96 +233,101 @@ def input_parsing(argv):
           print("specify at least one of the following option: --training|-t or --test|-e or --predict|-p")
           sys.exit()  
 
-   return train_flag,test_flag,predict_flag,PATH_x,PATH_y,model_dir,gpu_num,renovate_traningset,renovate_testset,btch_s,trnngset_div,checkpoint_dir,checkpoint_basename,checkpoint_step, cores,output,num_labels,keep_path_list,fltr1stnmb,dims
+   return train_flag,test_flag,predict_flag,PATH_x,PATH_y,model_dir,gpu_num,renovate_traningset,renovate_testset,btch_s,trnngset_div,checkpoint_dir,checkpoint_basename,checkpoint_step, cores,output,num_labels,keep_path_list,fltr1stnmb,dims,validation_portion
 
 def get_trainingset(TRAIN_PATH_x,TRAIN_PATH_y,renovate_trainingset,keep_path_list,trnngset_div,train_i,validate_flag,ext_image_filename,ext_label_filename,dims,ncores=1):
-	
-          X_train_files=[]
-          Y_train_files=[]
-          X_train = None
-          Y_train = None
-          X_train_files = []
-          Y_train_files = []
-          X_validate = None 
-          Y_validate = None
-          X_validate_file = None
-          Y_validate_file = None
-          TRAIN_PATH_x_list = None
-          TRAIN_PATH_y_list = None
-          VALID_PATH_x_list = None 
-          VALID_PATH_y_list = None
-          
-          if trnngset_div==1:
+        
+        X_train_files=[]
+        Y_train_files=[]
+        X_train = None
+        Y_train = None
+        X_train_files = []
+        Y_train_files = []
+        X_validate = None 
+        Y_validate = None
+        X_validate_file = None
+        Y_validate_file = None
+        TRAIN_PATH_x_list = None
+        TRAIN_PATH_y_list = None
+        VALID_PATH_x_list = None 
+        VALID_PATH_y_list = None
+        
+        print('check')
+        print(trnngset_div)
+
+
+        if trnngset_div==1:
             X_train_files=[save_dir+"X_train"+"_"+ext_image_filename+".npy"]
             Y_train_files=[save_dir+"Y_train"+"_"+ext_label_filename+".npy"]
-          else:
+        else:
             for nn in range(trnngset_div):
                 X_train_files.append(save_dir+"X_train"+str(nn)+"_"+ext_image_filename+".npy")
                 Y_train_files.append(save_dir+"Y_train"+str(nn)+"_"+ext_label_filename+".npy")
-          
-          X_train_file = X_train_files[train_i]
-          Y_train_file = Y_train_files[train_i]
-          
-          if validate_flag:
+        
+        X_train_file = X_train_files[train_i]
+        Y_train_file = Y_train_files[train_i]
+        
+        if validate_flag:
             X_validate_file=save_dir+"X_validate"+"_"+ext_image_filename+".npy"
             Y_validate_file=save_dir+"Y_validate"+"_"+ext_label_filename+".npy"
-          else:
-			X_validate_file=None
-			Y_validate_file=None
+        else:
+            X_validate_file=None
+            Y_validate_file=None
             
-          #RENOVATE OR RESTORE TRAININGSET
-          
-          TRAIN_PATH_x_list_file=save_dir+'/TRAIN_PATH_x_list.pkl' 
-          TRAIN_PATH_y_list_file=save_dir+'/TRAIN_PATH_y_list.pkl'
-          
-          if not ( isfile(TRAIN_PATH_x_list_file) and isfile(TRAIN_PATH_y_list_file) ):
+        #RENOVATE OR RESTORE TRAININGSET
+        
+        TRAIN_PATH_x_list_file=save_dir+'/TRAIN_PATH_x_list.pkl' 
+        TRAIN_PATH_y_list_file=save_dir+'/TRAIN_PATH_y_list.pkl'
+        
+        if not ( isfile(TRAIN_PATH_x_list_file) and isfile(TRAIN_PATH_y_list_file) ):
                 renovate_trainingset=True
                 
-          if keep_path_list:
-				  
-				  if ( isfile(TRAIN_PATH_x_list_file) and isfile(TRAIN_PATH_y_list_file) ) :
-						print('loading stored training image paths list from: '+TRAIN_PATH_x_list_file)              
-						TRAIN_PATH_x_list=load_pickle(TRAIN_PATH_x_list_file)           
-						print('loading stored training label paths list from: '+TRAIN_PATH_y_list_file)
-						TRAIN_PATH_y_list=load_pickle(TRAIN_PATH_y_list_file) 
-				  else:
-						keep_path_list  = False
-						TRAIN_PATH_x_list=glob.glob(TRAIN_PATH_x+'/*')
-						TRAIN_PATH_x_list.sort()
-						TRAIN_PATH_y_list=glob.glob(TRAIN_PATH_y+'/*')
-						TRAIN_PATH_y_list.sort()
-          else:       
-				TRAIN_PATH_x_list=glob.glob(TRAIN_PATH_x+'/*')
-				TRAIN_PATH_x_list.sort()
-				TRAIN_PATH_y_list=glob.glob(TRAIN_PATH_y+'/*')
-				TRAIN_PATH_y_list.sort()    
+        if keep_path_list:
                 
-          if not ( isfile(X_train_file) and isfile(Y_train_file) ):
+                if ( isfile(TRAIN_PATH_x_list_file) and isfile(TRAIN_PATH_y_list_file) ) :
+                        print('loading stored training image paths list from: '+TRAIN_PATH_x_list_file)              
+                        TRAIN_PATH_x_list=load_pickle(TRAIN_PATH_x_list_file)           
+                        print('loading stored training label paths list from: '+TRAIN_PATH_y_list_file)
+                        TRAIN_PATH_y_list=load_pickle(TRAIN_PATH_y_list_file) 
+                else:
+                        keep_path_list  = False
+                        TRAIN_PATH_x_list=glob.glob(TRAIN_PATH_x+'/*')
+                        TRAIN_PATH_x_list.sort()
+                        TRAIN_PATH_y_list=glob.glob(TRAIN_PATH_y+'/*')
+                        TRAIN_PATH_y_list.sort()
+        else:       
+                TRAIN_PATH_x_list=glob.glob(TRAIN_PATH_x+'/*')
+                TRAIN_PATH_x_list.sort()
+                TRAIN_PATH_y_list=glob.glob(TRAIN_PATH_y+'/*')
+                TRAIN_PATH_y_list.sort()    
+                
+        if not ( isfile(X_train_file) and isfile(Y_train_file) ):
                 renovate_trainingset=True
                 
-          if validate_flag: 
-              VALID_PATH_x_list_file=save_dir+'/VALID_PATH_x_list.pkl' 
-              VALID_PATH_y_list_file=save_dir+'/VALID_PATH_y_list.pkl'
-              if not ( isfile(X_validate_file) and isfile(Y_validate_file) ):
-                  renovate_trainingset=True
-              if  ( not renovate_trainingset or  keep_path_list ):
-				  if ( isfile(VALID_PATH_x_list_file) and isfile(VALID_PATH_y_list_file) ) :
-					print('loading stored validation image paths list from: '+VALID_PATH_x_list_file)              
-					VALID_PATH_x_list=load_pickle(VALID_PATH_x_list_file)   
-					print('loading stored validation label paths list from: '+VALID_PATH_y_list_file)
-					VALID_PATH_y_list=load_pickle(VALID_PATH_y_list_file)    
-				  else:
-				    keep_path_list  = False                  
-			  
-          if renovate_trainingset:
+        if validate_flag: 
+            VALID_PATH_x_list_file=save_dir+'/VALID_PATH_x_list.pkl' 
+            VALID_PATH_y_list_file=save_dir+'VALID_PATH_y_list.pkl'
+            if not ( isfile(X_validate_file) and isfile(Y_validate_file) ):
+                renovate_trainingset=True
+            if  ( not renovate_trainingset or  keep_path_list ):
+                if ( isfile(VALID_PATH_x_list_file) and isfile(VALID_PATH_y_list_file) ) :
+                    print('loading stored validation image paths list from: '+VALID_PATH_x_list_file)              
+                    VALID_PATH_x_list=load_pickle(VALID_PATH_x_list_file)   
+                    print('loading stored validation label paths list from: '+VALID_PATH_y_list_file)
+                    VALID_PATH_y_list=load_pickle(VALID_PATH_y_list_file)    
+                else:
+                    keep_path_list  = False                  
+            
+        if renovate_trainingset:
                 print("renovate the dataset...")
                 if not keep_path_list:
-					if validate_flag:
-						TRAIN_PATH_x_list,TRAIN_PATH_y_list,VALID_PATH_x_list,VALID_PATH_y_list=data_split(TRAIN_PATH_x_list,TRAIN_PATH_y_list,validation_portion)
-						save_pickle(VALID_PATH_x_list_file, VALID_PATH_x_list)
-						save_pickle(VALID_PATH_y_list_file, VALID_PATH_y_list)                
-					save_pickle(TRAIN_PATH_x_list_file, TRAIN_PATH_x_list)
-					save_pickle(TRAIN_PATH_y_list_file, TRAIN_PATH_y_list)
+                    if validate_flag:
+                        TRAIN_PATH_x_list,TRAIN_PATH_y_list,VALID_PATH_x_list,VALID_PATH_y_list=data_split(TRAIN_PATH_x_list,TRAIN_PATH_y_list,validation_portion);print(VALID_PATH_x_list_file,VALID_PATH_y_list_file)
+                        
+                        save_pickle(VALID_PATH_x_list_file, VALID_PATH_x_list)
+                        save_pickle(VALID_PATH_y_list_file, VALID_PATH_y_list)                
+                    save_pickle(TRAIN_PATH_x_list_file, TRAIN_PATH_x_list)
+                    save_pickle(TRAIN_PATH_y_list_file, TRAIN_PATH_y_list)
                 
                 TRAIN_PATH_x,TRAIN_PATH_y = data_partition(TRAIN_PATH_x_list,TRAIN_PATH_y_list,train_i,trnngset_div)
                 #print  TRAIN_PATH_x
@@ -346,7 +354,7 @@ def get_trainingset(TRAIN_PATH_x,TRAIN_PATH_y,renovate_trainingset,keep_path_lis
                     np.save(X_validate_file,X_validate)
                     print('saving current labels of validation set as'+Y_validate_file)
                     np.save(Y_validate_file,Y_validate)                      
-          else:
+        else:
                 print("restore last trainingset...")
                 print('loading stored training images from: '+X_train_file) 
                 X_train=loadArray(X_train_file)
@@ -358,14 +366,14 @@ def get_trainingset(TRAIN_PATH_x,TRAIN_PATH_y,renovate_trainingset,keep_path_lis
                     X_validate=loadArray(X_validate_file) 
                     print('loading stored validation labels from: '+Y_validate_file) 
                     Y_validate=loadArray(Y_validate_file)
-          if validate_flag:          
-			  occurrences_x=[i for i in VALID_PATH_x_list if i in TRAIN_PATH_x_list ]          
-			  occurrences_y=[i for i in VALID_PATH_y_list if i in TRAIN_PATH_y_list ]          
-			  if len(occurrences_x)!=0 or len(occurrences_y)!=0:
-				  print('error: found a common element in the validation set and in the training set. Please re-run the script with the --re-trainingset option'); sys.exit()
-              
-			  
-          return  [X_train, Y_train,X_train_files,Y_train_files, X_validate, Y_validate, X_validate_file, Y_validate_file,TRAIN_PATH_x_list,TRAIN_PATH_y_list, VALID_PATH_x_list, VALID_PATH_y_list]
+        if validate_flag:          
+            occurrences_x=[i for i in VALID_PATH_x_list if i in TRAIN_PATH_x_list ]          
+            occurrences_y=[i for i in VALID_PATH_y_list if i in TRAIN_PATH_y_list ]          
+            if len(occurrences_x)!=0 or len(occurrences_y)!=0:
+                print('error: found a common element in the validation set and in the training set. Please re-run the script with the --re-trainingset option'); sys.exit()
+            
+            
+        return  [X_train, Y_train,X_train_files,Y_train_files, X_validate, Y_validate, X_validate_file, Y_validate_file,TRAIN_PATH_x_list,TRAIN_PATH_y_list, VALID_PATH_x_list, VALID_PATH_y_list]
 
 #%%
 ########################################################################################################################
@@ -379,7 +387,7 @@ if __name__ == '__main__':
       #~#~#~#~#~#~#~#~#~#~#~#~#            Input Parsing        #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
       #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
 
-      train_flag,test_flag,predict_flag,PATH_x,PATH_y,model_dir,gpu_num,renovate_trainingset,renovate_testset,btch_s,trnngset_div,checkpoint_dir,checkpoint_basename,checkpoint_step, cores,output,num_labels,keep_path_list,fltr1stnmb,dims=input_parsing(sys.argv[1:])
+      train_flag,test_flag,predict_flag,PATH_x,PATH_y,model_dir,gpu_num,renovate_trainingset,renovate_testset,btch_s,trnngset_div,checkpoint_dir,checkpoint_basename,checkpoint_step, cores,output,num_labels,keep_path_list,fltr1stnmb,dims,validation_portion=input_parsing(sys.argv[1:])
 
       print('training: ' +str(train_flag))
       print('test:'+str(test_flag))
