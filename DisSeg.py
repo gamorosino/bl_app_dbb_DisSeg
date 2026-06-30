@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Created on Thu Oct  7 10:41:42 2021
@@ -9,9 +9,9 @@ Created on Thu Oct  7 10:41:42 2021
 ###################                                                                                   ###################
 ###################      title:            3D UNET for Brain Tissues Segmentation                     ###################
 ###################                                                                                   ###################
-###################	 description:                                                                     ###################
-###################	 version:     0.5.2.0.0                                                           ###################
-###################	 notes:	        need to Install: py modules - tf,matplotlib,nibabel,skimage       ###################
+###################  description:                                                                     ###################
+###################  version:     0.5.2.0.0                                                           ###################
+###################  notes:         need to Install: py modules - tf,matplotlib,nibabel,skimage       ###################
 ###################                                                                                   ###################
 ###################                                                                                   ###################
 ###################                                                                                   ###################             
@@ -74,7 +74,7 @@ drop_rate=0.15
 iterations =  100  # 10000000  # 1000000
 btch_s = 1
 total_iter=10000000
-skp_iter=iterations/10
+skp_iter=iterations//10
 #btch_cnt_thr = 50
 conv_kernel_size=[3,3,3]
 default_num_labels=7
@@ -128,9 +128,9 @@ TEST_PATH_y=None
 
 def load_nib(T1_file):    
     T1_Struct=nib.load(T1_file);
-    T1_aff=T1_Struct.get_affine(); 
-    T1_header=T1_Struct.get_header();
-    T1_img = T1_Struct.get_data();
+    T1_aff=T1_Struct.affine;
+    T1_header=T1_Struct.header;
+    T1_img = T1_Struct.get_fdata();
     return T1_img,T1_header,T1_aff
     
 def tf_resp(T1_img,dims):    
@@ -170,11 +170,11 @@ def input_parsing(argv):
       opts, args = getopt.getopt(argv,"htperaki:l:g:m:u:b:d:c:q:s:j:n:o:f:z:x:",["training","predict","test","re-trainingset","re-test","--keep-pathlist","images=","labels=","gpunum=","model-dir=","batch-size=","training-div=","checkpoint-dir=","checkpoint-basename=","checkpoint-step=","num-threads=","num-classes=","output=","num-1stfilter=","dims=","valid-split="])
    except getopt.GetoptError:
       print('error:')
-      print sys.argv[0]+' [--trainig | --test | --predict] [-k] --images <path> [--labels <path>] [-m <path>] [-o <path>] [-g <num>] [-b <num>] [-d <num>] [-c <path>] [ -q <path>] [ -s <str> ] [ -j <num> ] [ -n <num> ]'
+      print(sys.argv[0]+' [--trainig | --test | --predict] [-k] --images <path> [--labels <path>] [-m <path>] [-o <path>] [-g <num>] [-b <num>] [-d <num>] [-c <path>] [ -q <path>] [ -s <str> ] [ -j <num> ] [ -n <num> ]')
       sys.exit(2)
    for opt, arg in opts:
       if opt == '-h':
-         print sys.argv[0]+' [--trainig | --test | --predict] [-k] --images <path> [--labels <path>] [-m <path>] [-o <path>]  [-g <num>] [-b <num>] [-d <num>] [-c <path>] [ -q <str>] [ -s <num> ] [ -j <num> ] [ -n <num> ]'
+         print(sys.argv[0]+' [--trainig | --test | --predict] [-k] --images <path> [--labels <path>] [-m <path>] [-o <path>]  [-g <num>] [-b <num>] [-d <num>] [-c <path>] [ -q <str>] [ -s <num> ] [ -j <num> ] [ -n <num> ]')
          sys.exit()
       elif opt in ("-t" , "--training"):
           train_flag=True
@@ -217,16 +217,16 @@ def input_parsing(argv):
 
       elif opt in ("-z", "--dims"):
          try:
-			shape_ = int(arg)
-			IMG_WIDTH = shape_
-			IMG_HEIGHT = shape_
-			IMG_LENGTH = shape_    
-			dims = (shape_,shape_,shape_)    
+            shape_ = int(arg)
+            IMG_WIDTH = shape_
+            IMG_HEIGHT = shape_
+            IMG_LENGTH = shape_    
+            dims = (shape_,shape_,shape_)    
          except:
-			dims = tuple(np.array(list(arg.replace(',','').replace('[','').replace(']','').replace(')','').replace('(',''))).astype(int))
-			IMG_WIDTH = dims[0]
-			IMG_HEIGHT = dims[1]
-			IMG_LENGTH = dims[2]   
+            dims = tuple(np.array(list(arg.replace(',','').replace('[','').replace(']','').replace(')','').replace('(',''))).astype(int))
+            IMG_WIDTH = dims[0]
+            IMG_HEIGHT = dims[1]
+            IMG_LENGTH = dims[2]   
       elif opt in ("-k", "--keep-pathlist"):
          keep_path_list = True
    if (test_flag is False) and  (train_flag is False) and (predict_flag is False):
@@ -396,9 +396,9 @@ if __name__ == '__main__':
       print('dimensions:'+str(dims))
       print('filter:'+str(fltr1stnmb))
       if PATH_y is not None:
-		print('labels path:'+PATH_y)
+        print('labels path:'+PATH_y)
       if model_dir is not None:
-		print('model dir:'+model_dir)
+        print('model dir:'+model_dir)
       print('gpu device:'+gpu_num)
       print('renovate traningset:'+str(renovate_trainingset))
       print('traningset division:'+str(trnngset_div))
@@ -580,7 +580,7 @@ if __name__ == '__main__':
       if test_flag:
               Dice_score_list_file_all_test_file=save_dir+"dice_score_test"+metrics_bname+"_allImages.npy"
               if not isfile(Dice_score_list_file_all_test_file) or renovate_metrics:
-				 
+                 
                                 Dice_score_list_file_all_test=[]
               else:
                                 Dice_score_list_file_all_test=list(loadArray(Dice_score_list_file_all_test_file))
@@ -590,24 +590,24 @@ if __name__ == '__main__':
 
                                 
       if not isfile(Dice_score_train_list_file) or renovate_metrics:
-				 
+                 
                                 Dice_score_train_list=[]
       else:
                                 Dice_score_train_list=list(loadArray(Dice_score_train_list_file))
       
 ######### Statistics
       if test_flag or train_flag:                               
-		  #RENOVATE STATISTICS         
-		  if renovate_stats:
-				acc_list=[0]
-				loss_list=[]
-				meanloss_list=[]
-		  
-		  
-		  else:
-					  acc_list=list(loadArray(acc_list_file))
-					  loss_list=list(loadArray(loss_list_file))
-					  meanloss_list=list(loadArray(meanloss_list_file))
+          #RENOVATE STATISTICS         
+          if renovate_stats:
+                acc_list=[0]
+                loss_list=[]
+                meanloss_list=[]
+          
+          
+          else:
+                      acc_list=list(loadArray(acc_list_file))
+                      loss_list=list(loadArray(loss_list_file))
+                      meanloss_list=list(loadArray(meanloss_list_file))
 
 #%%
       #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
@@ -648,17 +648,17 @@ if __name__ == '__main__':
                   btch_s=btch_s
                   start_time = time.time()
                   #iterations=iterations+8
-                  for i  in xrange(total_iter):
+                  for i  in range(total_iter):
                         start_time_0 = time.time()
                         try:
-		                unet.train(X_train, Y_train,iter=iterations,
-		                           batch_count_thr=(Xt_numb/btch_s)-1,
-		                           batch_size=btch_s,
-		                           skip_iter=skp_iter,
-		                           conv_kernel_size=conv_kernel_size,
-		                           agument_batch=agument_flag)
+                            unet.train(X_train, Y_train,iter=iterations,
+                                   batch_count_thr=(Xt_numb/btch_s)-1,
+                                   batch_size=btch_s,
+                                   skip_iter=skp_iter,
+                                   conv_kernel_size=conv_kernel_size,
+                                   agument_batch=agument_flag)
                         except:
-		                print('error while training on:' + X_train_file )
+                            print('error while training on:' + X_train_file )
                         elapsed_time = time.time() - start_time_0
                         print("training time from iter "+str(i*iterations)+" to "+str((i+1)*iterations)+" : "+'%.3f' % elapsed_time+" sec")
                         
@@ -698,47 +698,47 @@ if __name__ == '__main__':
                                           Dice_score_list_file_all.append(unet.dice_score)
                                     except:
                                         print('fail to retrive metrics')
-																			
+                                                                            
                                     try:
                                         np.save(Precision_list_file,np.array(Precision_list))
-										
+                                        
                                     except:
-										print("fail to save file: "+Precision_list_file)
+                                        print("fail to save file: "+Precision_list_file)
                                     try:
                                         np.save(F1_score_list_file,np.array(F1_score_list))
-										
+                                        
                                     except:
-										print("fail to save file: "+F1_score_list)
+                                        print("fail to save file: "+F1_score_list)
                                     try:
                                         np.save(MCC_list_file,np.array(MCC_list))
-										
+                                        
                                     except:
-										print("fail to save file: "+MCC_list_file)
+                                        print("fail to save file: "+MCC_list_file)
                                     try:
                                         np.save(Youden_index_list_file,np.array(Youden_index_list))
-										
+                                        
                                     except:
-										print("fail to save file: "+Youden_index_list_file)
+                                        print("fail to save file: "+Youden_index_list_file)
                                     try:
                                         np.save(Dice_score_list_file,np.array(Dice_score_list))
-										
+                                        
                                     except:
-										print("fail to save file: "+Dice_score_list_file)
+                                        print("fail to save file: "+Dice_score_list_file)
                                     try:
                                         np.save(Sensitivity_list_file,np.array(Sensitivity_list))
-										
+                                        
                                     except:
-										print("fail to save file: "+Sensitivity_list_file)
+                                        print("fail to save file: "+Sensitivity_list_file)
                                     try:
                                         np.save(Specificity_list_file,np.array(Specificity_list))
-										
+                                        
                                     except:
-										print("fail to save file: "+Specificity_list_file)
+                                        print("fail to save file: "+Specificity_list_file)
                                     try:
                                         np.save(Dice_score_list_file_all_file,unet.dice_score)
-										
+                                        
                                     except:
-										print("fail to save file: "+Dice_score_list_file_all_file)                                          
+                                        print("fail to save file: "+Dice_score_list_file_all_file)                                          
                                           
                               except:
                                    fail_list.append(ix)
@@ -769,7 +769,7 @@ if __name__ == '__main__':
                             train_i_old=train_i
                             train_i = train_i_old + 1
                             if train_i >= trnngset_div:
-                            	train_i=0
+                                train_i=0
                             
                             X_train_file = X_train_files[train_i]
                             Y_train_file = Y_train_files[train_i]
@@ -809,7 +809,7 @@ if __name__ == '__main__':
                   
                   elapsed_time = time.time() - start_time         
                   print("Total training time after "+str(total_iter*iterations)+" : "+'%.3f' % elapsed_time+" sec")
-                  print "Done"     
+                  print("Done")
                   
             #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
             #~#~#~#~#~#~#~#~#~#~#~#~#~#~#  Test  ~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
@@ -844,68 +844,68 @@ if __name__ == '__main__':
                   
 
             if predict_flag:
-				
-				if os.path.isdir(Predict_PATH_x):
-					predict_dir=Predict_PATH_x
-					predict_basename=os.path.basename(predict_dir)
-					predict_dir=predict_dir.replace('//','/')
-					if predict_dir[-1] == '/':
-						predict_basename=os.path.basename(predict_dir[:-1])
-					else:
-						predict_basename=os.path.basename(predict_dir)
-					if output is None:
-						outout_predict_dir=os.path.dirname(Predict_PATH_x)
-					else:
-						if os.path.isdir(output):
-							outout_predict_dir=output
-						else:
-							print('output must be a directory') 
-							sys.exit()
-					#outputdir=outout_predict_dir+'/'+predict_basename+'_predicted'
-					outputdir=outout_predict_dir
-					trymakedir(outputdir)
-					images_dir=predict_dir  
-					images_list=os.listdir(images_dir)
-					images_list.sort()                         
-					for inputfile in images_list:
-						print(inputfile)
-						T1_Struct=nib.load(images_dir+'/'+inputfile)
-						input_idx=inputfile.find(".")
-						outputfile=outputdir+'/'+inputfile[0:input_idx]+'_predicted.nii.gz'
-						T1_img = T1_Struct.get_data();
-						T1_aff=T1_Struct.get_affine();
-						T1_header=T1_Struct.get_header();
-						img=NormData(np.squeeze(T1_img));
-						img = np.expand_dims(skresize( img ,dims, mode='constant',order=0), axis=-1);
-						img = np.expand_dims(img , axis=0);
-						seg_T1=unet.predict(img,plot=False)
-						seg_T1=skresize( seg_T1 , T1_img.shape, mode='constant',order=0);
-						seg_T1_int_Struct = nib.Nifti1Image(seg_T1, affine=T1_aff, header=T1_header);
-						seg_T1_int_Struct.to_filename(outputfile) 
+                
+                if os.path.isdir(Predict_PATH_x):
+                    predict_dir=Predict_PATH_x
+                    predict_basename=os.path.basename(predict_dir)
+                    predict_dir=predict_dir.replace('//','/')
+                    if predict_dir[-1] == '/':
+                        predict_basename=os.path.basename(predict_dir[:-1])
+                    else:
+                        predict_basename=os.path.basename(predict_dir)
+                    if output is None:
+                        outout_predict_dir=os.path.dirname(Predict_PATH_x)
+                    else:
+                        if os.path.isdir(output):
+                            outout_predict_dir=output
+                        else:
+                            print('output must be a directory') 
+                            sys.exit()
+                    #outputdir=outout_predict_dir+'/'+predict_basename+'_predicted'
+                    outputdir=outout_predict_dir
+                    trymakedir(outputdir)
+                    images_dir=predict_dir  
+                    images_list=os.listdir(images_dir)
+                    images_list.sort()                         
+                    for inputfile in images_list:
+                        print(inputfile)
+                        T1_Struct=nib.load(images_dir+'/'+inputfile)
+                        input_idx=inputfile.find(".")
+                        outputfile=outputdir+'/'+inputfile[0:input_idx]+'_predicted.nii.gz'
+                        T1_img = T1_Struct.get_fdata();
+                        T1_aff=T1_Struct.affine;
+                        T1_header=T1_Struct.header;
+                        img=NormData(np.squeeze(T1_img));
+                        img = np.expand_dims(skresize( img ,dims, mode='constant',order=0), axis=-1);
+                        img = np.expand_dims(img , axis=0);
+                        seg_T1=unet.predict(img,plot=False)
+                        seg_T1=skresize( seg_T1 , T1_img.shape, mode='constant',order=0);
+                        seg_T1_int_Struct = nib.Nifti1Image(seg_T1, affine=T1_aff, header=T1_header);
+                        seg_T1_int_Struct.to_filename(outputfile) 
                         
-				else: 						
-						#load T1
-						T1_img,T1_header,T1_aff=load_nib(Predict_PATH_x)
-						img=tf_resp(T1_img,dims)
-						
-						#Predict segmentation    
-						predictedSeg=unet.predict(img);
-						predictedSeg=skresize( predictedSeg , T1_img.shape, mode='constant',order=0);
-						
-						#save results
-						seg_T1_int_Struct = nib.Nifti1Image(integerize_seg(predictedSeg), affine=T1_aff, header=T1_header);
-						if output is None:
-							outout_predict_dir=os.path.dirname(Predict_PATH_x)
-							predict_basename=os.path.basename(Predict_PATH_x)
-							predict_basename=predict_basename[:predict_basename.find('.')]
-							output_file=outout_predict_dir+'/'+predict_basename+'_segmentation.nii.gz'
-						else:
-							if os.path.isdir(output):
-								outout_predict_dir=output
-								predict_basename=os.path.basename(Predict_PATH_x)
-								predict_basename=predict_basename[:predict_basename.find('.')]
-								output_file=outout_predict_dir+'/'+predict_basename+'_segmentation.nii.gz'		
-							else:
-								output_file=output					
-								
-						seg_T1_int_Struct.to_filename(output_file)   
+                else:                       
+                        #load T1
+                        T1_img,T1_header,T1_aff=load_nib(Predict_PATH_x)
+                        img=tf_resp(T1_img,dims)
+                        
+                        #Predict segmentation    
+                        predictedSeg=unet.predict(img);
+                        predictedSeg=skresize( predictedSeg , T1_img.shape, mode='constant',order=0);
+                        
+                        #save results
+                        seg_T1_int_Struct = nib.Nifti1Image(integerize_seg(predictedSeg), affine=T1_aff, header=T1_header);
+                        if output is None:
+                            outout_predict_dir=os.path.dirname(Predict_PATH_x)
+                            predict_basename=os.path.basename(Predict_PATH_x)
+                            predict_basename=predict_basename[:predict_basename.find('.')]
+                            output_file=outout_predict_dir+'/'+predict_basename+'_segmentation.nii.gz'
+                        else:
+                            if os.path.isdir(output):
+                                outout_predict_dir=output
+                                predict_basename=os.path.basename(Predict_PATH_x)
+                                predict_basename=predict_basename[:predict_basename.find('.')]
+                                output_file=outout_predict_dir+'/'+predict_basename+'_segmentation.nii.gz'      
+                            else:
+                                output_file=output                  
+                                
+                        seg_T1_int_Struct.to_filename(output_file)   

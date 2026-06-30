@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Created on Tue May 11 15:06:37 2021
@@ -35,9 +35,9 @@ def tf_resp(T1_img,dims):
 
 def load_nib(T1_file):    
     T1_Struct=nib.load(T1_file);
-    T1_aff=T1_Struct.get_affine(); 
-    T1_header=T1_Struct.get_header();
-    T1_img = T1_Struct.get_data();
+    T1_aff=T1_Struct.affine;
+    T1_header=T1_Struct.header;
+    T1_img = T1_Struct.get_fdata();
     return T1_img,T1_header,T1_aff
 
 def init_unet(checkpoint_dir=None,checkpoint_basename=None,ckpt_step=None,checkpoints_dir=None,gpu_num=str(0),num_labels=7):
@@ -56,29 +56,29 @@ def init_unet(checkpoint_dir=None,checkpoint_basename=None,ckpt_step=None,checkp
    checkpoint_file1=checkpoint_dir+ "/"+checkpoint_basename+"-"+ckpt_step+".data-00000-of-00001"
    checkpoint_file2=checkpoint_dir+ "/"+checkpoint_basename+"-"+ckpt_step+".index"
    checkpoint_file3=checkpoint_dir+ "/"+checkpoint_basename+"-"+ckpt_step+".meta"
-   	
+    
    if not os.path.isfile(checkpoint_file1) or not os.path.isfile(checkpoint_file2) or not os.path.isfile(checkpoint_file3):
-	print("Download checkpoint...")
-	
-	trymakedir(checkpoint_dir)
+    print("Download checkpoint...")
+    
+    trymakedir(checkpoint_dir)
 
 
 
-	gdd.download_file_from_google_drive(file_id='1hcm_LIDsmtnopkK7380E9xr8RgFkjkMa-',
+    gdd.download_file_from_google_drive(file_id='1hcm_LIDsmtnopkK7380E9xr8RgFkjkMa-',
                                     dest_path=checkpoint_file1)
-	gdd.download_file_from_google_drive(file_id='10AfOmscVoUiiu01s_v1VpC05gXnR1k3w',
+    gdd.download_file_from_google_drive(file_id='10AfOmscVoUiiu01s_v1VpC05gXnR1k3w',
                                     dest_path=checkpoint_file2)
-	gdd.download_file_from_google_drive(file_id='1DU3e1SKHQhpDTzPAwVXzrpiolhsiiMa9',
-                                    dest_path=checkpoint_file3)	
+    gdd.download_file_from_google_drive(file_id='1DU3e1SKHQhpDTzPAwVXzrpiolhsiiMa9',
+                                    dest_path=checkpoint_file3) 
    checkpoint_file=checkpoint_dir+ "/checkpoint"
    
    if not os.path.isfile(checkpoint_file):
-	   model_checkpoint_path="model_checkpoint_path: "+"\""+checkpoint_dir+""+checkpoint_basename+"-"+ckpt_step+"\""
-	   all_model_checkpoint_paths="all_model_checkpoint_paths: "+"\""+checkpoint_dir+""+checkpoint_basename+"-"+ckpt_step+"\""	   
-	   outF = open(checkpoint_file, "w")
-	   for line in [model_checkpoint_path,all_model_checkpoint_paths]:
-		 print >>outF, line
-	   outF.close()
+       model_checkpoint_path="model_checkpoint_path: "+"\""+checkpoint_dir+""+checkpoint_basename+"-"+ckpt_step+"\""
+       all_model_checkpoint_paths="all_model_checkpoint_paths: "+"\""+checkpoint_dir+""+checkpoint_basename+"-"+ckpt_step+"\""     
+       outF = open(checkpoint_file, "w")
+       for line in [model_checkpoint_path,all_model_checkpoint_paths]:
+         print(line, file=outF)
+       outF.close()
    print("checkpoint_dir: "+checkpoint_dir)
    unet = UNET_3D_multiclass( loss_type=loss_type,
                                           drop_rate=drop_rate,
@@ -94,17 +94,17 @@ def unet_predict(T1_file,outputfile,unet,dims,Mask_file=None):
     #load T1
     T1_img,T1_header,T1_aff=load_nib(T1_file)
     if Mask_file is not None:
-		MaskArray = nib.load(Mask_file).get_data()
-		MaskArray_orig=MaskArray.copy()
-		MaskArray = bDil(MaskArray, structure=None, iterations=1)
-		T1_img = ( MaskArray * T1_img ) +  (  2000 * ( MaskArray == 0 ) )
-		
+        MaskArray = nib.load(Mask_file).get_fdata()
+        MaskArray_orig=MaskArray.copy()
+        MaskArray = bDil(MaskArray, structure=None, iterations=1)
+        T1_img = ( MaskArray * T1_img ) +  (  2000 * ( MaskArray == 0 ) )
+        
     img=tf_resp(T1_img,dims)
     #Predict segmentation    
     predictedSeg=unet.predict(img);
     predictedSeg=skresize( predictedSeg , T1_img.shape, mode='constant',order=0);
     if Mask_file is not None:
-		predictedSeg = predictedSeg * MaskArray_orig	    
+        predictedSeg = predictedSeg * MaskArray_orig        
     
     #save results
     seg_T1_int_Struct = nib.Nifti1Image(integerize_seg(predictedSeg), affine=T1_aff, header=T1_header);
@@ -154,8 +154,8 @@ def dice_score(predicted_file,gtruth_file ,seg_labels=None):
     
     Dice_score=np.zeros(len(seg_labels))
     for idx,value in enumerate(seg_labels): 
-        predicted_i=(predicted==value).astype(np.int)
-        gtruth_i=(gtruth==value).astype(np.int)
+        predicted_i=(predicted==value).astype(int)
+        gtruth_i=(gtruth==value).astype(int)
         ConfMat = ConfusionMatrix(predicted_i, gtruth_i)
         Dice_score[idx]=ConfMat.Dice_score
     return Dice_score

@@ -2,6 +2,10 @@
 
 This application implements a 3D U-Net for brain tissue segmentation. This implementation of 3D U-Net is used as the baseline method in the Distorted Brain Benchmark (DBB) for automatic tissue segmentation in paediatric patients.
 
+### Updates
+
+**June 2026** — v2.0.0 - Migrated codebase from Python 2.7 / TensorFlow 1.10 / CUDA 9 to Python 3.9 / TensorFlow 2.9 / CUDA 11.2. The TF1 graph/session API is preserved via `tensorflow.compat.v1`. All nibabel, NumPy, and indentation compatibility issues were resolved.
+
 ### Author
 
     Gabriele Amorosino (gamorosino@fbk.eu)
@@ -115,28 +119,25 @@ The files are stored in the working directory, under the folder _./segmentation_
 In order to use the script, the following software must be installed:
 * ANTs, Advanced Normalization Tools (version >= 2.1.0)
 
-It is also necessary that Python 2.7.x is installed, with the following modules:
+It is also necessary that Python 3.9 is installed, with the following modules:
 
-* scikit-image=0.14.2 
-* requests=2.22.0 
-* nibabel=2.5.1 
-* pydicom=1.3.0 
-* tqdm=4.38.0 
-* pyvista 
-* vtk=8.1.2 
-* libnetcdf=4.6.2
-* tensorflow-gpu=1.10.0 
-* Cuda toolkit 9.0 or 9.1
+* scikit-image>=0.19.3
+* requests>=2.22.0
+* nibabel>=4.0.2
+* pydicom>=2.3.1
+* tqdm>=4.38.0
+* pyvista
+* vtk>=9.1.0
+* tensorflow-gpu=2.9.1
+* CUDA toolkit 11.2 + cuDNN 8.1
 
 It is suggested to install python modules using conda. 
 ```
-conda install -c anaconda python=2.7 scikit-image=0.14.2 \
-      && conda install -c anaconda python=2.7 requests=2.22.0 \
-      && conda install -c conda-forge nibabel=2.5.1 \
-      && conda install -c conda-forge pydicom=1.3.0 \
-      && conda install -c conda-forge tqdm=4.38.0 \
-      && conda install -c anaconda tensorflow-gpu=1.10.0 cudatoolkit=9.0  \
-      && conda install -c conda-forge pyvista "vtk=8.1.2" "libnetcdf=4.6.2"
+conda create -n disseg python=3.9 \
+  && conda activate disseg \
+  && conda install -c conda-forge scikit-image=0.19.3 nibabel=4.0.2 pydicom=2.3.1 tqdm requests \
+  && conda install -c anaconda tensorflow-gpu=2.9.1 cudatoolkit=11.2 cudnn=8.1.0 \
+  && conda install -c conda-forge pyvista vtk
 ```
 
 ## Run test on DBB Distorted Brain Benchmark test set

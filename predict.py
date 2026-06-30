@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Created on Wed Jul 21 15:04:46 2021
@@ -37,10 +37,10 @@ if __name__ == '__main__':
     outputfile=args.fullpath1[0]
     checkpoints_dir=args.fullpath2[0]
     if args.mask[0]:
-		mask=args.mask[0]
+        mask=args.mask[0]
     else:
-		mask=None
-		
+        mask=None
+        
    ## initialize the U-Net
     unet=init_unet(checkpoint_dir=None,checkpoint_basename=None,ckpt_step=None,checkpoints_dir=checkpoints_dir,gpu_num=gpu_num)
     

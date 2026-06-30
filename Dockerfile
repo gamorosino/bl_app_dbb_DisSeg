@@ -1,5 +1,4 @@
-FROM ubuntu:bionic-20200630 
-
+FROM ubuntu:20.04
 
 MAINTAINER Gabriele
 
@@ -11,26 +10,26 @@ RUN apt-get update && apt-get install \
                      apt-transport-https \
                      ca-certificates \
                      gnupg \
-                     software-properties-common \
                      wget \
                      ninja-build \
-                      git \
-                      zlib1g-dev \
+                     git \
+                     zlib1g-dev \
                      apt-utils \
                      g++ \
                      libeigen3-dev \
-                     libqt4-opengl-dev libgl1-mesa-dev libfftw3-dev libtiff5-dev \
+                     libgl1-mesa-dev \
+                     libfftw3-dev \
+                     libtiff5-dev \
                      jq \
                      strace \
                      curl \
                      vim \
-			zip \
-			file
-                     
+                     zip \
+                     file
 
-## install Conda
+## install Conda (Python 3)
 ENV PATH /opt/conda/bin:$PATH
-RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda2-py27_4.8.3-Linux-x86_64.sh -O ~/miniconda.sh && \
+RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh && \
     /bin/bash ~/miniconda.sh -b -p /opt/conda && \
     rm ~/miniconda.sh && \
     ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
@@ -38,23 +37,18 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda2-py27_4.8.3-Linux
     echo "conda activate base" >> ~/.bashrc
 
 ## install Python Modules with Conda
-
-RUN  conda install -c anaconda python=2.7 scikit-image=0.14.2 \
-      && conda install -c anaconda python=2.7 requests=2.22.0 \
-      && conda install -c conda-forge nibabel=2.5.1 \
-      && conda install -c conda-forge pydicom=1.3.0 \
-      && conda install -c conda-forge tqdm=4.38.0 \
-      && conda install -c anaconda tensorflow-gpu=1.10.0 cudatoolkit=9.0\
-      && conda install -c conda-forge pyvista "vtk=8.1.2" "libnetcdf=4.6.2"
-      
+RUN conda install -c anaconda python=3.9 && \
+    conda install -c anaconda scikit-image=0.19.3 && \
+    conda install -c anaconda requests=2.28.0 && \
+    conda install -c conda-forge nibabel=4.0.2 && \
+    conda install -c conda-forge pydicom=2.3.1 && \
+    conda install -c conda-forge tqdm=4.64.0 && \
+    conda install -c conda-forge tensorflow=2.9.1 cudatoolkit=11.2 cudnn=8.1.0 && \
+    conda install -c conda-forge scipy matplotlib
 
 ## Clone bl_app_dbb_DisSeg via Github
+RUN cd / && git clone https://github.com/gamorosino/bl_app_dbb_DisSeg.git
 
-RUN cd / && git clone https://github.com/gamorosino/bl_app_dbb_DisSeg.git 
-
-#make it work under singularity 
-#https://wiki.ubuntu.com/DashAsBinSh 
+#make it work under singularity
 RUN ldconfig
-
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
-

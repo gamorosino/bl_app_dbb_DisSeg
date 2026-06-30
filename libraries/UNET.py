@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Created on Wed Jun 26 17:05:49 2019
@@ -11,7 +11,7 @@ Created on Wed Jun 26 17:05:49 2019
 ###################                                                                                   ###################
 ###################   description:                                                                    ###################
 ###################   version:       0.8.3.0.0                                                        ###################
-###################   notes:	        need to Install: software                                     ###################
+###################   notes:            need to Install: software                                     ###################
 ###################                  py modules - tf,matplotlib,nibabel,skimage,                      ###################
 ###################                               tqdm                                                ###################
 ###################                                                                                   ###################
@@ -46,7 +46,8 @@ from skimage.transform import warp as skwarp
 from skimage.transform import swirl as skswirl
 from skimage import exposure
 
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
 from tensorflow.python.ops import array_ops
 warnings.filterwarnings('ignore', category=UserWarning, module='skimage')
 warnings.filterwarnings('ignore', category=UserWarning, module='matplotlib')
@@ -378,7 +379,7 @@ def agument_data_pool(X_train,Y_train,ncores,noise,parallel_transf,i):
                      
             X_out=(np.expand_dims(np.expand_dims(X_agu[0], axis=-1),axis=0)*X_max).astype(X_orig_dtype)
             Y_out=(np.expand_dims(np.expand_dims(Y_agu[0], axis=-1),axis=0)).astype(Y_orig_dtype)
-            for j in xrange(1,len(X_agu)):             
+            for j in range(1,len(X_agu)):             
                 X_aa=np.expand_dims(np.expand_dims(X_agu[j],axis=-1),axis=0)
                 Y_aa=np.expand_dims(np.expand_dims(Y_agu[j], axis=-1),axis=0)
                 X_aa=(X_aa*X_max).astype(X_orig_dtype)
@@ -398,7 +399,7 @@ def agument_data(X_train,Y_train,iamge_type_,label_type_,ncores=2,nosie=False,pa
       X_ag=np.copy(X_train) 
       Y_ag=np.copy(Y_train)
       if parallel_transf:
-          for i in xrange(X_train.shape[0]):
+          for i in range(X_train.shape[0]):
               X_out,Y_out=agument_data_pool(X_train, Y_train,ncores,nosie,parallel_transf,i)
               X_ag=np.concatenate([X_ag,X_out],axis=0)
               Y_ag=np.concatenate([Y_ag,Y_out],axis=0)  
@@ -433,15 +434,7 @@ def deconv3d(input_tensor, filter_size, output_size, out_channels, in_channels, 
         output_size_x=output_size[0]
         output_size_y=output_size[1]
         output_size_z=output_size[2]        
-    elif type(output_size) is tf.Dimension:
-        if type(output_size.value) == int:
-                    output_size_x=output_size
-                    output_size_y=output_size
-                    output_size_z=output_size
-        elif type(output_size.value) == list or type(output_size) == tuple:
-                    output_size_x=output_size[0]
-                    output_size_y=output_size[1]
-                    output_size_z=output_size[2]
+
     else:
             print("value: "+str(type(output_size.value)))
     out_shape = tf.stack([batch_size, output_size_x, output_size_y, output_size_z, out_channels])
@@ -461,14 +454,7 @@ def deconv2d(input_tensor, filter_size, output_size, out_channels, in_channels, 
     elif type(output_size) == list or type(output_size) == tuple:
         output_size_x=output_size[0]
         output_size_y=output_size[1]
-    elif type(output_size) is tf.Dimension:
-            if type(output_size.value) == int:
-                    output_size_x=output_size
-                    output_size_y=output_size
-            elif type(output_size.value) == list or type(output_size) == tuple:
-                    output_size_x=output_size[0]
-                    output_size_y=output_size[1]
-        
+
 
     out_shape = tf.stack([batch_size, output_size_x, output_size_y, out_channels])
     filter_shape = [filter_size, filter_size, out_channels, in_channels]
@@ -500,7 +486,7 @@ def conv3d_block(input_,filters,kernel_size,padding,activation, name_cv1,name_cv
                                        activation=activation,
                                        name=name_cv1)
             if batch_norm:
-				conv1 = tf.layers.batch_normalization(conv1)
+                                conv1 = tf.layers.batch_normalization(conv1)
             conv2 = tf.layers.conv3d(inputs=conv1,
                                        filters=filters,
                                        kernel_size=kernel_size,
@@ -508,10 +494,10 @@ def conv3d_block(input_,filters,kernel_size,padding,activation, name_cv1,name_cv
                                        activation=activation,
                                        name=name_cv2)
             if batch_norm:
-				conv2 = tf.layers.batch_normalization(conv2)
+                                conv2 = tf.layers.batch_normalization(conv2)
             if print_shape:
-				print("shape "+name_cv1+":" +str(conv1.shape))
-				print("shape "+name_cv2+":" +str(conv2.shape))
+                                print("shape "+name_cv1+":" +str(conv1.shape))
+                                print("shape "+name_cv2+":" +str(conv2.shape))
             return conv2 
 
 
@@ -519,45 +505,45 @@ def full_block(input_,filters,kernel_size,padding,activation, pool_size,name_cv1
               
               
             conv_b=conv3d_block(input_,filters,kernel_size,'SAME',
-								tf.nn.relu, name_cv1,name_cv2,
-								batch_norm,print_shape)  
+                                                                tf.nn.relu, name_cv1,name_cv2,
+                                                                batch_norm,print_shape)  
             pool = tf.layers.max_pooling3d(inputs=conv_b,
                                               pool_size=pool_size,
                                               strides=2,
                                               name=name_pool)
             if print_shape:
-				print("shape "+name_pool+":" +str(pool.shape))
+                                print("shape "+name_pool+":" +str(pool.shape))
             if dropout_layer:
-			    pool = tf.layers.dropout(pool,
+                            pool = tf.layers.dropout(pool,
                                           drop_rate,
                                           training=drop_training,
                                           name=name_dropout)
-			    if print_shape:
-					print("shape "+name_dropout+":" +str(dropout_.shape))
+                            if print_shape:
+                                        print("shape "+name_dropout+":" +str(dropout_.shape))
             return pool, conv_b 
 
 def deconv3d_block(input_1,input_2,dimm,filt1,filt2,
-					filters,kernel_size,padding,activation,
-					deconv_name, name_cv1,name_cv2,
-					batch_norm,dropout_layer,print_shape=False,
-					drop_rate=0.5,drop_training=False,name_dropout=None):
-						
+                                        filters,kernel_size,padding,activation,
+                                        deconv_name, name_cv1,name_cv2,
+                                        batch_norm,dropout_layer,print_shape=False,
+                                        drop_rate=0.5,drop_training=False,name_dropout=None):
+                                                
             deconv = deconv3d(input_1, 1, dimm, filt1, filt2, deconv_name )  
             deconv1 = concatenate([deconv, input_2])
             
             if dropout_layer:
-			    deconv1 = tf.layers.dropout(deconv1,
+                            deconv1 = tf.layers.dropout(deconv1,
                                           drop_rate,
                                           training=drop_training,
                                           name=name_dropout)
              
             if print_shape:
-				print("shape "+deconv_name+": "+str(deconv.shape))
-				print("shape "+deconv_name+" concat: "+str(deconv1.shape))      
+                                print("shape "+deconv_name+": "+str(deconv.shape))
+                                print("shape "+deconv_name+" concat: "+str(deconv1.shape))      
             conv_b=conv3d_block(deconv1,filters,kernel_size,padding,
-								activation, name_cv1,name_cv2,
-								batch_norm,print_shape)  	
-            return conv_b	
+                                                                activation, name_cv1,name_cv2,
+                                                                batch_norm,print_shape)         
+            return conv_b       
 
 #%%
 #######################################################################################################################
@@ -667,7 +653,7 @@ class UNET_3D(object):
     batch_count_thr = 50
     ckpt_basename = 'UNET'
     ckpt_dir = None
-    drop_rate = tf.constant(0.75)
+    drop_rate = None
     drop_training = True
     towritedir = './graphs/UNET'
     logits = None
@@ -675,8 +661,6 @@ class UNET_3D(object):
     conv_kernel_size=[3,3,3]
     pool_size=[2,2,2]
     gpu_num=str(0)
-    config = tf.ConfigProto(allow_soft_placement=True)
-    config.gpu_options.allow_growth=True
 
     def __init__(self, **kwargs):
         
@@ -684,10 +668,12 @@ class UNET_3D(object):
         #os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
         os.environ["CUDA_VISIBLE_DEVICES"]=self.gpu_num
         print("Use GPU device number "+self.gpu_num)
+        config = tf.ConfigProto(allow_soft_placement=True)
+        config.gpu_options.allow_growth=True
         with tf.device('/gpu:'+self.gpu_num):
               
-	      
-	      self.sess = tf.Session(config=self.config)
+              
+              self.sess = tf.Session(config=config)
 
               self.loss_values = []   
               self.ckpt_dir = kwargs.get('ckpt_dir', self.ckpt_dir)
@@ -715,7 +701,7 @@ class UNET_3D(object):
                     
                     outF = open(checkpoint_file, "w")
                     for line in [model_checkpoint_path,all_model_checkpoint_paths]:
-                          print >>outF, line
+                          print(line, file=outF)
                     outF.close()
               self.towritedir = kwargs.get('towritedir', self.towritedir)        
               self.filter1stnumb = kwargs.get('filter1stnumb', 32)
@@ -846,7 +832,7 @@ class UNET_3D(object):
                                           training=self.drop_training,
                                           name='dropout')
               print("shape dropout: "+str(dropout.shape))
-              deconv1 = deconv3d(dropout, 1, self.IMG_WIDTH / 8, self.filter1stnumb*8, self.filter1stnumb*16, "deconv1")  
+              deconv1 = deconv3d(dropout, 1, self.IMG_WIDTH // 8, self.filter1stnumb*8, self.filter1stnumb*16, "deconv1")  
               print("shape deconv1: "+str(deconv1.shape))
               deconv1 = concatenate([deconv1, conv8]) 
               print("shape deconv1 concat: "+str(deconv1.shape))      
@@ -866,7 +852,7 @@ class UNET_3D(object):
                                         activation=tf.nn.relu,      
                                         name='conv12')             
               print("shape conv12: "+str(conv12.shape))              
-              deconv2 = deconv3d(conv12, 1,self.IMG_WIDTH / 4, self.filter1stnumb*4, self.filter1stnumb*8, "deconv2")  # 32
+              deconv2 = deconv3d(conv12, 1,self.IMG_WIDTH // 4, self.filter1stnumb*4, self.filter1stnumb*8, "deconv2")  # 32
               print("shape deconv2: "+str(deconv2.shape))
               deconv2 = concatenate([deconv2, conv6]) 
               print("shape deconv2 concat: "+str(deconv2.shape))
@@ -884,7 +870,7 @@ class UNET_3D(object):
                                         activation=tf.nn.relu,
                                         name='conv14')
               print("shape conv14: "+str(conv14.shape))              
-              deconv3 = deconv3d(conv14, 1, self.IMG_WIDTH / 2, self.filter1stnumb*2, self.filter1stnumb*4, "deconv3")  # 32
+              deconv3 = deconv3d(conv14, 1, self.IMG_WIDTH // 2, self.filter1stnumb*2, self.filter1stnumb*4, "deconv3")  # 32
               print("shape deconv3: "+str(deconv3.shape))
               deconv3 = concatenate([deconv3, conv4]) 
               print("shape deconv3 concat: "+str(deconv3.shape))      
@@ -959,33 +945,33 @@ class UNET_3D(object):
                   self.IMG_HEIGHT = X_t[0].shape[1]
                   self.IMG_LENGTH = X_t[0].shape[2]
 
-		  
+                  
                   Y_type=tf.float32
-		  X_type=tf.float32
-		  if X_t.dtype == np.float16:
-			X_type=tf.float16
-		  if Y_t is not None:
-		  	if Y_t.dtype == np.float16:
-				Y_type=tf.float16
+                  X_type=tf.float32
+                  if X_t.dtype == np.float16:
+                        X_type=tf.float16
+                  if Y_t is not None:
+                        if Y_t.dtype == np.float16:
+                                Y_type=tf.float16
 
-		  if  self.IMG_LENGTH != 1: 
-                  	
-                  	self.X = tf.placeholder(X_type, [None, self.IMG_WIDTH, self.IMG_HEIGHT,self.IMG_LENGTH, 1])
-                  	if Y_t is not None:
+                  if  self.IMG_LENGTH != 1: 
+                        
+                        self.X = tf.placeholder(X_type, [None, self.IMG_WIDTH, self.IMG_HEIGHT,self.IMG_LENGTH, 1])
+                        if Y_t is not None:
                           self.Y_ = tf.placeholder(Y_type, [None, self.IMG_WIDTH, self.IMG_HEIGHT,self.IMG_LENGTH, 1])
                           self.labels = Y_t
                           self.label_type=Y_t.dtype
-                  	self.dims=[self.IMG_WIDTH, self.IMG_HEIGHT,self.IMG_LENGTH]
-		  else:
-                  	self.X = tf.placeholder(X_type, [None, self.IMG_WIDTH, self.IMG_HEIGHT, 1])
-                  	if Y_t is not None:
+                        self.dims=[self.IMG_WIDTH, self.IMG_HEIGHT,self.IMG_LENGTH]
+                  else:
+                        self.X = tf.placeholder(X_type, [None, self.IMG_WIDTH, self.IMG_HEIGHT, 1])
+                        if Y_t is not None:
                           self.Y_ = tf.placeholder(Y_type, [None, self.IMG_WIDTH, self.IMG_HEIGHT, 1])
                           self.labels = Y_t
                           self.label_type=Y_t.dtype
-                  	self.dims=[self.IMG_WIDTH, self.IMG_HEIGHT]
+                        self.dims=[self.IMG_WIDTH, self.IMG_HEIGHT]
                   self.images  = X_t 
                   self.image_type = X_t.dtype
-		          
+                          
 
     def train(self,X_train,Y_train, **kwargs):
         
@@ -1030,11 +1016,11 @@ class UNET_3D(object):
                     elif self.loss_type == "softmax_cross_entropy":
                            self.loss = tf.losses.softmax_cross_entropy(tf.cast(self.Y_, tf.int32),predicted)
 
-		    elif self.loss_type == "sparse_softmax_cross_entropy":
-			   self.loss = tf.losses.sparse_softmax_cross_entropy(tf.cast(self.Y_, tf.int32),predicted ) 
+                    elif self.loss_type == "sparse_softmax_cross_entropy":
+                           self.loss = tf.losses.sparse_softmax_cross_entropy(tf.cast(self.Y_, tf.int32),predicted ) 
                                        
- 		    elif self.loss_type == "softmax_cross_entropy_with_logits":
-			   self.loss = tf.nn.softmax_cross_entropy_with_logits_v2(labels=self.Y_,logits=predicted )                         
+                    elif self.loss_type == "softmax_cross_entropy_with_logits":
+                           self.loss = tf.nn.softmax_cross_entropy_with_logits(labels=self.Y_,logits=predicted )                         
                     
                     elif self.loss_type == "dice_score": 
                           self.loss = 1 - dice_coe(predicted,self.Y_,smooth=1e-8)
@@ -1081,7 +1067,7 @@ class UNET_3D(object):
               batch_count = 0
               writer = tf.summary.FileWriter(self.towritedir, tf.get_default_graph())
               
-              for i in xrange(self.iterations):
+              for i in range(self.iterations):
                   # training on batches 
                   if (batch_count > self.batch_count_thr):
                       batch_count = 0
@@ -1168,7 +1154,7 @@ class UNET_3D(object):
               result_mask = np.reshape(np.squeeze(result_mask), rslt_dim)
               
               result_mask_seqeeze_orig[i] = result_mask.squeeze()
-              result_mask_seqeeze = result_mask.squeeze().astype(np.float)
+              result_mask_seqeeze = result_mask.squeeze().astype(float)
               result_mask_seqeeze_int = integerize(result_mask_seqeeze_orig[i])
               
               
@@ -1206,15 +1192,15 @@ class UNET_3D(object):
               self.f1_score     =  np.mean(f1_score_v)
               self.precision    =  np.mean(precision_v)
               self.dice_score   =  np.mean(dice_score_v)
-              print 'Sensitivity (recall):    {}'.format(round(self.sensitivity,4))
-              print 'Specificity:             {}'.format(round(self.specificity,4))
-              print 'Accuracy:                {}'.format(round(self.accuracy,4))               
-              print 'Dice Score:              {}'.format(round(self.dice_score,4))
-              print 'Precision:               {}'.format(round(self.precision,4))               
-              print 'F1 score:                {}'.format(round(self.f1_score,4))
-              print 'MCC:                     {}'.format(round(self.MCC,4))
-              print 'Youden index:            {}'.format(round(self.Youden_index,4)) 
-              print 'Pearson coef:            {}'.format(round(self.pearscoeff,4))
+              print('Sensitivity (recall):    {}'.format(round(self.sensitivity,4)))
+              print('Specificity:             {}'.format(round(self.specificity,4)))
+              print('Accuracy:                {}'.format(round(self.accuracy,4))               )
+              print('Dice Score:              {}'.format(round(self.dice_score,4)))
+              print('Precision:               {}'.format(round(self.precision,4))               )
+              print('F1 score:                {}'.format(round(self.f1_score,4)))
+              print('MCC:                     {}'.format(round(self.MCC,4)))
+              print('Youden index:            {}'.format(round(self.Youden_index,4)) )
+              print('Pearson coef:            {}'.format(round(self.pearscoeff,4)))
         
         if plot_flag:
             i=-1
@@ -1287,7 +1273,7 @@ class UNET_3D(object):
               result_mask = self.sess.run([self.logits], feed_dict=test_data)
               result_mask = np.reshape(np.squeeze(result_mask), rslt_dim)              
               result_mask_seqeeze_orig[i] = result_mask.squeeze()
-              result_mask_seqeeze = result_mask.squeeze().astype(np.float)
+              result_mask_seqeeze = result_mask.squeeze().astype(float)
               result_mask_seqeeze_int = integerize(result_mask_seqeeze_orig[i])
                
         
@@ -1419,7 +1405,7 @@ class UNET_3D_seg(UNET_3D):
                                           training=self.drop_training,
                                           name='dropout')
               print("shape dropout: "+str(dropout.shape))
-              deconv1 = deconv3d(dropout, 1, self.IMG_WIDTH / 8, self.filter1stnumb*8, self.filter1stnumb*16, "deconv1")  
+              deconv1 = deconv3d(dropout, 1, self.IMG_WIDTH // 8, self.filter1stnumb*8, self.filter1stnumb*16, "deconv1")  
               print("shape deconv1: "+str(deconv1.shape))
               deconv1 = concatenate([deconv1, conv8]) 
               print("shape deconv1 concat: "+str(deconv1.shape))      
@@ -1439,7 +1425,7 @@ class UNET_3D_seg(UNET_3D):
                                         activation=tf.nn.relu,      
                                         name='conv12')             
               print("shape conv12: "+str(conv12.shape))              
-              deconv2 = deconv3d(conv12, 1,self.IMG_WIDTH / 4, self.filter1stnumb*4, self.filter1stnumb*8, "deconv2")  # 32
+              deconv2 = deconv3d(conv12, 1,self.IMG_WIDTH // 4, self.filter1stnumb*4, self.filter1stnumb*8, "deconv2")  # 32
               print("shape deconv2: "+str(deconv2.shape))
               deconv2 = concatenate([deconv2, conv6]) 
               print("shape deconv2 concat: "+str(deconv2.shape))
@@ -1457,7 +1443,7 @@ class UNET_3D_seg(UNET_3D):
                                         activation=tf.nn.relu,
                                         name='conv14')
               print("shape conv14: "+str(conv14.shape))              
-              deconv3 = deconv3d(conv14, 1, self.IMG_WIDTH / 2, self.filter1stnumb*2, self.filter1stnumb*4, "deconv3")  # 32
+              deconv3 = deconv3d(conv14, 1, self.IMG_WIDTH // 2, self.filter1stnumb*2, self.filter1stnumb*4, "deconv3")  # 32
               print("shape deconv3: "+str(deconv3.shape))
               deconv3 = concatenate([deconv3, conv4]) 
               print("shape deconv3 concat: "+str(deconv3.shape))      
@@ -1589,7 +1575,7 @@ class UNET_3D_seg(UNET_3D):
               result_mask = np.reshape(np.squeeze(result_mask), [self.IMG_WIDTH, self.IMG_HEIGHT,self.IMG_LENGTH, 1])
               
               result_mask_seqeeze_orig[i] = result_mask.squeeze()
-              result_mask_seqeeze = result_mask.squeeze().astype(np.float)
+              result_mask_seqeeze = result_mask.squeeze().astype(float)
               result_mask_seqeeze_int_all = integerize_seg(result_mask_seqeeze_orig[i])
               accuracy_vv=np.zeros([len(seg_labels)])
               MCC_vv=np.zeros([len(seg_labels)])
@@ -1602,15 +1588,15 @@ class UNET_3D_seg(UNET_3D):
               dice_score_vv=np.zeros([len(seg_labels)])
               if acc_flag :
                        for idx,value in enumerate(seg_labels): 
-                           result_mask_seqeeze_int=(result_mask_seqeeze_int_all==value).astype(np.int)
-                           test_mask=(test_mask_all==value).astype(np.int)
+                           result_mask_seqeeze_int=(result_mask_seqeeze_int_all==value).astype(int)
+                           test_mask=(test_mask_all==value).astype(int)
                            ConfMat = ConfusionMatrix(result_mask_seqeeze_int, test_mask)
                            accuracy_vv[idx]=ConfMat.accuracy
                        accuracy_v[i]=np.mean(accuracy_vv)
               if metrics_flag:
                                 for idx,value in enumerate(seg_labels):
-                                    result_mask_seqeeze_int=(result_mask_seqeeze_int_all==value).astype(np.int)
-                                    test_mask=(test_mask_all==value).astype(np.int)
+                                    result_mask_seqeeze_int=(result_mask_seqeeze_int_all==value).astype(int)
+                                    test_mask=(test_mask_all==value).astype(int)
                                     ConfMat = ConfusionMatrix(result_mask_seqeeze_int, test_mask)
 
                                     MCC_vv[idx]=ConfMat.MCC
@@ -1634,8 +1620,8 @@ class UNET_3D_seg(UNET_3D):
                     
               if plot_accuracy:
                            for idx,value in enumerate(seg_labels):
-                               result_mask_seqeeze_int=(result_mask_seqeeze_int_all==value).astype(np.int)
-                               test_mask=(test_mask_all==value).astype(np.int)
+                               result_mask_seqeeze_int=(result_mask_seqeeze_int_all==value).astype(int)
+                               test_mask=(test_mask_all==value).astype(int)
                                ConfMat = ConfusionMatrix(result_mask_seqeeze_int, test_mask)
                                ConfMat.plot(),plt.suptitle("index: "+str(ix)+" -  label:"+str(value)+" - Accuracy: "+'%.3f' % ConfMat.accuracy + "- Dice Score: "+'%.3f' % ConfMat.Dice_score)
         
@@ -1652,15 +1638,15 @@ class UNET_3D_seg(UNET_3D):
               self.f1_score     =  np.mean(f1_score_v)
               self.precision    =  np.mean(precision_v)
               self.dice_score   =  np.mean(dice_score_v)
-              print 'Sensitivity (recall):    {}'.format(round(self.sensitivity,4))
-              print 'Specificity:             {}'.format(round(self.specificity,4))
-              print 'Accuracy:                {}'.format(round(self.accuracy,4))               
-              print 'Dice Score:              {}'.format(round(self.dice_score,4))
-              print 'Precision:               {}'.format(round(self.precision,4))               
-              print 'F1 score:                {}'.format(round(self.f1_score,4))
-              print 'MCC:                     {}'.format(round(self.MCC,4))
-              print 'Youden index:            {}'.format(round(self.Youden_index,4)) 
-              print 'Pearson coef:            {}'.format(round(self.pearscoeff,4))
+              print('Sensitivity (recall):    {}'.format(round(self.sensitivity,4)))
+              print('Specificity:             {}'.format(round(self.specificity,4)))
+              print('Accuracy:                {}'.format(round(self.accuracy,4))               )
+              print('Dice Score:              {}'.format(round(self.dice_score,4)))
+              print('Precision:               {}'.format(round(self.precision,4))               )
+              print('F1 score:                {}'.format(round(self.f1_score,4)))
+              print('MCC:                     {}'.format(round(self.MCC,4)))
+              print('Youden index:            {}'.format(round(self.Youden_index,4)) )
+              print('Pearson coef:            {}'.format(round(self.pearscoeff,4)))
         
         if plot_flag:
             
@@ -1672,8 +1658,8 @@ class UNET_3D_seg(UNET_3D):
                  
                  if plot_separately_flag:
                      for idx,value in enumerate(seg_labels):
-                          result_mask_seqeeze_int=(result_mask_seqeeze_int_all==value).astype(np.int)
-                          test_mask=(test_mask_all==value).astype(np.int)                
+                          result_mask_seqeeze_int=(result_mask_seqeeze_int_all==value).astype(int)
+                          test_mask=(test_mask_all==value).astype(int)                
                       
                          # result_mask_seqeeze =result_mask_seqeeze_orig[i].astype(np.float32)
                           
@@ -1740,7 +1726,7 @@ class UNET_3D_seg(UNET_3D):
               result_mask = self.sess.run([self.logits], feed_dict=test_data)
               result_mask = np.reshape(np.squeeze(result_mask), [self.IMG_WIDTH, self.IMG_HEIGHT,self.IMG_LENGTH, 1])
               result_mask_seqeeze_orig[i] = result_mask.squeeze()
-              result_mask_seqeeze = result_mask.squeeze().astype(np.float)
+              result_mask_seqeeze = result_mask.squeeze().astype(float)
               result_mask_seqeeze_int_all = integerize_seg(result_mask_seqeeze_orig[i])            
               
               if seg_labels is None:
@@ -1763,13 +1749,13 @@ class UNET_3D_seg(UNET_3D):
         if plot_flag:
             
             for ix in indices: 
-		 i=i+1
+                 i=i+1
                  OrtoView(result_mask_seqeeze_orig[i], colormap=matplotlib.cm.jet), plt.suptitle("index: "+str(ix)+" Result Segmentation (orig)")
                  OrtoView(np.round(result_mask_seqeeze_orig[i]), colormap=matplotlib.cm.jet), plt.suptitle("index: "+str(ix)+" Result Segmentation (round)")
                  
                  if plot_separately_flag:
                      for idx,value in enumerate(seg_labels):
-                          result_mask_seqeeze_int=(result_mask_seqeeze_int_all==value).astype(np.int)
+                          result_mask_seqeeze_int=(result_mask_seqeeze_int_all==value).astype(int)
                           OrtoView(result_mask_seqeeze_int, colormap=matplotlib.cm.jet), plt.suptitle("label: "+str(value)+" result mask int")
                           OrtoView(test_image[i],Mask=result_mask_seqeeze_int), plt.suptitle("label: "+str(value)+" Test image vs  Result Mask int")
         if result_mask_seqeeze_orig.shape[0] == 1:
@@ -1787,10 +1773,12 @@ class UNET_3D_multiclass(UNET_3D_seg):
         #os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
         os.environ["CUDA_VISIBLE_DEVICES"]=self.gpu_num
         print("Use GPU device number "+self.gpu_num)
+        config = tf.ConfigProto(allow_soft_placement=True)
+        config.gpu_options.allow_growth=True
         with tf.device('/gpu:'+self.gpu_num):
               
-	      
-	      self.sess = tf.Session(config=self.config)
+              
+              self.sess = tf.Session(config=config)
 
               self.loss_values = []   
               self.ckpt_dir = kwargs.get('ckpt_dir', self.ckpt_dir)
@@ -1818,7 +1806,7 @@ class UNET_3D_multiclass(UNET_3D_seg):
                     
                     outF = open(checkpoint_file, "w")
                     for line in [model_checkpoint_path,all_model_checkpoint_paths]:
-                          print >>outF, line
+                          print(line, file=outF)
                     outF.close()
               self.towritedir = kwargs.get('towritedir', self.towritedir)        
               self.filter1stnumb = kwargs.get('filter1stnumb', 32)
@@ -1836,7 +1824,7 @@ class UNET_3D_multiclass(UNET_3D_seg):
               self.dice_score=0.0
               self.sensitivity=0.0
               self.specificity=0.0
-    	      self.num_labels = kwargs.get('num_labels', self.num_labels) 	
+              self.num_labels = kwargs.get('num_labels', self.num_labels)       
               self.conv_kernel_size = kwargs.get('conv_kernel_size', self.conv_kernel_size) 
 
     def summary(self):
@@ -1955,7 +1943,7 @@ class UNET_3D_multiclass(UNET_3D_seg):
                                           training=self.drop_training,
                                           name='dropout')
               print("shape dropout: "+str(dropout.shape))
-              deconv1 = deconv3d(dropout, 1, [self.IMG_WIDTH / 8,self.IMG_HEIGHT / 8  ,self.IMG_LENGTH / 8 ], self.filter1stnumb*8, self.filter1stnumb*16, "deconv1")  
+              deconv1 = deconv3d(dropout, 1, [self.IMG_WIDTH // 8,self.IMG_HEIGHT // 8  ,self.IMG_LENGTH // 8 ], self.filter1stnumb*8, self.filter1stnumb*16, "deconv1")  
               print("shape deconv1: "+str(deconv1.shape))
               deconv1 = concatenate([deconv1, conv8]) 
               print("shape deconv1 concat: "+str(deconv1.shape))      
@@ -1975,7 +1963,7 @@ class UNET_3D_multiclass(UNET_3D_seg):
                                         activation=tf.nn.relu,      
                                         name='conv12')             
               print("shape conv12: "+str(conv12.shape))              
-              deconv2 = deconv3d(conv12, 1, [self.IMG_WIDTH / 4,self.IMG_HEIGHT / 4 ,self.IMG_LENGTH / 4 ] , self.filter1stnumb*4, self.filter1stnumb*8, "deconv2")  # 32
+              deconv2 = deconv3d(conv12, 1, [self.IMG_WIDTH // 4,self.IMG_HEIGHT // 4 ,self.IMG_LENGTH // 4 ] , self.filter1stnumb*4, self.filter1stnumb*8, "deconv2")  # 32
               print("shape deconv2: "+str(deconv2.shape))
               deconv2 = concatenate([deconv2, conv6]) 
               print("shape deconv2 concat: "+str(deconv2.shape))
@@ -1993,7 +1981,7 @@ class UNET_3D_multiclass(UNET_3D_seg):
                                         activation=tf.nn.relu,
                                         name='conv14')
               print("shape conv14: "+str(conv14.shape))              
-              deconv3 = deconv3d(conv14, 1, [self.IMG_WIDTH / 2,self.IMG_HEIGHT / 2 ,self.IMG_LENGTH / 2 ], self.filter1stnumb*2, self.filter1stnumb*4, "deconv3")  # 32
+              deconv3 = deconv3d(conv14, 1, [self.IMG_WIDTH // 2,self.IMG_HEIGHT // 2 ,self.IMG_LENGTH // 2 ], self.filter1stnumb*2, self.filter1stnumb*4, "deconv3")  # 32
               print("shape deconv3: "+str(deconv3.shape))
               deconv3 = concatenate([deconv3, conv4]) 
               print("shape deconv3 concat: "+str(deconv3.shape))      
@@ -2029,7 +2017,7 @@ class UNET_3D_multiclass(UNET_3D_seg):
                                         activation=tf.nn.relu,
                                         name='conv18')
               print("shape conv18: "+str(conv18.shape))       
-	      logits = tf.layers.conv3d(inputs=conv18,
+              logits = tf.layers.conv3d(inputs=conv18,
                                         filters=self.num_labels,
                                         kernel_size=[1, 1, 1],
                                         padding='SAME',
@@ -2147,14 +2135,14 @@ class UNET_3D_multiclass(UNET_3D_seg):
               
               test_data = {self.X: test_image_reshape}
               #result_mask = self.sess.run([self.logits], feed_dict=test_data)
-	      result_mask = self.sess.run([tf.argmax(tf.nn.log_softmax(self.logits, axis=-1), axis=-1)	], feed_dict=test_data)
+              result_mask = self.sess.run([tf.argmax(tf.nn.log_softmax(self.logits, axis=-1), axis=-1)  ], feed_dict=test_data)
       
-	      #return result_mask
+              #return result_mask
 
               result_mask = np.reshape(np.squeeze(result_mask), [self.IMG_WIDTH, self.IMG_HEIGHT,self.IMG_LENGTH, 1])
               
               result_mask_seqeeze_orig[i] = result_mask.squeeze()
-              result_mask_seqeeze = result_mask.squeeze().astype(np.float)
+              result_mask_seqeeze = result_mask.squeeze().astype(float)
               result_mask_seqeeze_int_all = integerize_seg(result_mask_seqeeze_orig[i])
               accuracy_vv=np.zeros([len(seg_labels)])
               MCC_vv=np.zeros([len(seg_labels)])
@@ -2167,8 +2155,8 @@ class UNET_3D_multiclass(UNET_3D_seg):
               dice_score_vv=np.zeros([len(seg_labels)])
               if acc_flag :
                        for idx,value in enumerate(seg_labels): 
-                           result_mask_seqeeze_int=(result_mask_seqeeze_int_all==value).astype(np.int)
-                           test_mask=(test_mask_all==value).astype(np.int)
+                           result_mask_seqeeze_int=(result_mask_seqeeze_int_all==value).astype(int)
+                           test_mask=(test_mask_all==value).astype(int)
                            try:
                                ConfMat = ConfusionMatrix(result_mask_seqeeze_int, test_mask)
                                accuracy_vv[idx]=ConfMat.accuracy
@@ -2178,8 +2166,8 @@ class UNET_3D_multiclass(UNET_3D_seg):
                        accuracy_v[i,:]=accuracy_vv
               if metrics_flag:
                                 for idx,value in enumerate(seg_labels):
-                                    result_mask_seqeeze_int=(result_mask_seqeeze_int_all==value).astype(np.int)
-                                    test_mask=(test_mask_all==value).astype(np.int)
+                                    result_mask_seqeeze_int=(result_mask_seqeeze_int_all==value).astype(int)
+                                    test_mask=(test_mask_all==value).astype(int)
                                     try:
                                         ConfMat = ConfusionMatrix(result_mask_seqeeze_int, test_mask)
                                     
@@ -2217,8 +2205,8 @@ class UNET_3D_multiclass(UNET_3D_seg):
                     
               if plot_accuracy:
                            for idx,value in enumerate(seg_labels):
-                               result_mask_seqeeze_int=(result_mask_seqeeze_int_all==value).astype(np.int)
-                               test_mask=(test_mask_all==value).astype(np.int)
+                               result_mask_seqeeze_int=(result_mask_seqeeze_int_all==value).astype(int)
+                               test_mask=(test_mask_all==value).astype(int)
                                try:
                                    ConfMat = ConfusionMatrix(result_mask_seqeeze_int, test_mask)
                                    ConfMat.plot(),plt.suptitle("index: "+str(ix)+" -  label: "+str(value)+" - Accuracy: "+'%.3f' % ConfMat.accuracy + " - Dice Score: "+'%.3f' % ConfMat.Dice_score)
@@ -2256,35 +2244,35 @@ class UNET_3D_multiclass(UNET_3D_seg):
               self.dice_score   =  dice_score_v
 
 
-	      if print_metrics_flag:
+              if print_metrics_flag:
 
-	
-		      print "Average metrics (between labels): "	
-		      print 'Sensitivity (recall):    {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=np.mean(self.sensitivity_avg),std_vall=np.std(self.sensitivity_avg))
-		      print 'Specificity:             {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=np.mean(self.specificity_avg),std_vall=np.std(self.specificity_avg))
-		      print 'Accuracy:                {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=np.mean(self.accuracy_avg),std_vall=np.std(self.accuracy_avg))
-		      print 'Dice Score:              {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=np.mean(self.dice_score_avg),std_vall=np.std(self.dice_score_avg))
-		      print 'Precision:               {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=np.mean(self.precision_avg),std_vall=np.std(self.precision_avg))
-		      print 'F1 score:                {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=np.mean(self.f1_score_avg),std_vall=np.std(self.f1_score_avg))
-		      print 'MCC:                     {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=np.mean(self.MCC_avg),std_vall=np.std(self.MCC_avg))
-		      print 'Youden index:            {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=np.mean(self.Youden_index_avg),std_vall=np.std(self.Youden_index_avg)) 
-		      print 'Pearson coef:            {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=np.mean(self.pearscoeff_avg),std_vall=np.std(self.pearscoeff_avg))
-	
-	      if print_separately_flag:
+        
+                      print("Average metrics (between labels): "        )
+                      print('Sensitivity (recall):    {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=np.mean(self.sensitivity_avg),std_vall=np.std(self.sensitivity_avg)))
+                      print('Specificity:             {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=np.mean(self.specificity_avg),std_vall=np.std(self.specificity_avg)))
+                      print('Accuracy:                {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=np.mean(self.accuracy_avg),std_vall=np.std(self.accuracy_avg)))
+                      print('Dice Score:              {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=np.mean(self.dice_score_avg),std_vall=np.std(self.dice_score_avg)))
+                      print('Precision:               {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=np.mean(self.precision_avg),std_vall=np.std(self.precision_avg)))
+                      print('F1 score:                {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=np.mean(self.f1_score_avg),std_vall=np.std(self.f1_score_avg)))
+                      print('MCC:                     {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=np.mean(self.MCC_avg),std_vall=np.std(self.MCC_avg)))
+                      print('Youden index:            {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=np.mean(self.Youden_index_avg),std_vall=np.std(self.Youden_index_avg)) )
+                      print('Pearson coef:            {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=np.mean(self.pearscoeff_avg),std_vall=np.std(self.pearscoeff_avg)))
+        
+              if print_separately_flag:
 
-			for idx,value in enumerate(seg_labels):
+                        for idx,value in enumerate(seg_labels):
 
-			      print("Metrics label: "+ str(value))	
-			      
-			      print 'Sensitivity (recall):    {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=self.sensitivity_avg[idx],std_vall=self.sensitivity_std[idx])
-			      print 'Specificity:             {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=self.specificity_avg[idx],std_vall=self.specificity_std[idx])
-			      print 'Accuracy:                {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=self.accuracy_avg[idx],std_vall=self.accuracy_std[idx])
-			      print 'Dice Score:              {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=self.dice_score_avg[idx],std_vall=self.dice_score_std[idx])
-			      print 'Precision:               {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=self.precision_avg[idx],std_vall=self.precision_std[idx])              
-			      print 'F1 score:                {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=self.f1_score_avg[idx],std_vall=self.f1_score_std[idx])
-			      print 'MCC:                     {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=self.MCC_avg[idx],std_vall=self.MCC_std[idx])
-			      print 'Youden index:            {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=self.Youden_index_avg[idx],std_vall=self.Youden_index_std[idx])
-			      print 'Pearson coef:            {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=self.pearscoeff_avg[idx],std_vall=self.pearscoeff_std[idx])
+                              print("Metrics label: "+ str(value))      
+                              
+                              print('Sensitivity (recall):    {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=self.sensitivity_avg[idx],std_vall=self.sensitivity_std[idx]))
+                              print('Specificity:             {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=self.specificity_avg[idx],std_vall=self.specificity_std[idx]))
+                              print('Accuracy:                {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=self.accuracy_avg[idx],std_vall=self.accuracy_std[idx]))
+                              print('Dice Score:              {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=self.dice_score_avg[idx],std_vall=self.dice_score_std[idx]))
+                              print('Precision:               {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=self.precision_avg[idx],std_vall=self.precision_std[idx])              )
+                              print('F1 score:                {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=self.f1_score_avg[idx],std_vall=self.f1_score_std[idx]))
+                              print('MCC:                     {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=self.MCC_avg[idx],std_vall=self.MCC_std[idx]))
+                              print('Youden index:            {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=self.Youden_index_avg[idx],std_vall=self.Youden_index_std[idx]))
+                              print('Pearson coef:            {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=self.pearscoeff_avg[idx],std_vall=self.pearscoeff_std[idx]))
 
         i=-1
         if plot_flag:
@@ -2292,15 +2280,15 @@ class UNET_3D_multiclass(UNET_3D_seg):
             for ix in indices: 
                  test_mask_i = Y_test[ix].astype(float)
                  test_mask = test_mask_i[:, :, :, 0]
-		 i=i+1
+                 i=i+1
                  OrtoView(result_mask_seqeeze_orig[i], colormap=matplotlib.cm.jet), plt.suptitle("index: "+str(ix)+" Predicted Segmentation")
-		 if plot_ground_truth:
-		 	OrtoView(test_mask, colormap=matplotlib.cm.jet), plt.suptitle("index: "+str(ix)+" Ground Truth Segmentation")	
+                 if plot_ground_truth:
+                        OrtoView(test_mask, colormap=matplotlib.cm.jet), plt.suptitle("index: "+str(ix)+" Ground Truth Segmentation")   
                  result_mask_seqeeze_int_all = integerize_seg(result_mask_seqeeze_orig[i]) 
                  if plot_separately_flag:
                      for idx,value in enumerate(seg_labels):
-                          result_mask_seqeeze_int=(result_mask_seqeeze_int_all==value).astype(np.int)
-                          test_mask=(test_mask_all==value).astype(np.int)                
+                          result_mask_seqeeze_int=(result_mask_seqeeze_int_all==value).astype(int)
+                          test_mask=(test_mask_all==value).astype(int)                
                           OrtoView(result_mask_seqeeze_int, colormap=matplotlib.cm.jet), plt.suptitle("label: "+str(value)+" - Predicted mask")
                           OrtoView(test_image[i],Mask=test_mask), plt.suptitle("label: "+str(value)+"Ground Truth Mask superimposed on the Test Image")
                           OrtoView(test_image[i],Mask=result_mask_seqeeze_int), plt.suptitle("label: "+str(value)+" Predicted Mask superimposed on the Test image")
@@ -2356,12 +2344,12 @@ class UNET_3D_multiclass(UNET_3D_seg):
               test_image_reshape = np.reshape(test_image[i], [-1, self.IMG_WIDTH, self.IMG_HEIGHT,self.IMG_LENGTH, 1])
               
               test_data = {self.X: test_image_reshape}
-              result_mask = self.sess.run([tf.argmax(tf.nn.log_softmax(self.logits, axis=-1), axis=-1)	], feed_dict=test_data)
+              result_mask = self.sess.run([tf.argmax(tf.nn.log_softmax(self.logits, axis=-1), axis=-1)  ], feed_dict=test_data)
               result_mask_softmax_i =  self.sess.run([tf.nn.log_softmax(self.logits, axis=-1)], feed_dict=test_data)
               result_mask_softmax[i]=np.array(result_mask_softmax_i).squeeze()
               result_mask = np.reshape(np.squeeze(result_mask), [self.IMG_WIDTH, self.IMG_HEIGHT,self.IMG_LENGTH, 1])
               result_mask_seqeeze_orig[i] = result_mask.squeeze()
-              result_mask_seqeeze = result_mask.squeeze().astype(np.float)
+              result_mask_seqeeze = result_mask.squeeze().astype(float)
               result_mask_seqeeze_int_all = integerize_seg(result_mask_seqeeze_orig[i])            
               
               if seg_labels is None:
@@ -2382,16 +2370,16 @@ class UNET_3D_multiclass(UNET_3D_seg):
                       seg_labels=[seg_labels]
 
               
-	i=-1
+        i=-1
         if plot_flag:
             
             for ix in indices: 
-		 i=i+1
+                 i=i+1
                  OrtoView(result_mask_seqeeze_orig[i], colormap=matplotlib.cm.jet), plt.suptitle("index: "+str(ix)+" Predicted Segmentation")
                  result_mask_seqeeze_int_all = integerize_seg(result_mask_seqeeze_orig[i]) 
                  if plot_separately_flag:
                      for idx,value in enumerate(seg_labels):
-                          result_mask_seqeeze_int=(result_mask_seqeeze_int_all==value).astype(np.int)
+                          result_mask_seqeeze_int=(result_mask_seqeeze_int_all==value).astype(int)
                           OrtoView(result_mask_seqeeze_int, colormap=matplotlib.cm.jet), plt.suptitle("label: "+str(value)+" result mask")
                           OrtoView(test_image[i],Mask=result_mask_seqeeze_int), plt.suptitle("label: "+str(value)+" Test image vs  Result Mask")
         if result_mask_seqeeze_orig.shape[0] == 1:
@@ -2406,17 +2394,19 @@ class UNET_3D_multiclass(UNET_3D_seg):
 
 
 class UNET_3D_multiclass_v2(UNET_3D_multiclass):
-	
+        
     def __init__(self, **kwargs):
         
         self.gpu_num = kwargs.get('gpu_num', self.gpu_num)
         #os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
         os.environ["CUDA_VISIBLE_DEVICES"]=self.gpu_num
         print("Use GPU device number "+self.gpu_num)
+        config = tf.ConfigProto(allow_soft_placement=True)
+        config.gpu_options.allow_growth=True
         with tf.device('/gpu:'+self.gpu_num):
               
-	      
-	      self.sess = tf.Session(config=self.config)
+              
+              self.sess = tf.Session(config=config)
 
               self.loss_values = []   
               self.ckpt_dir = kwargs.get('ckpt_dir', self.ckpt_dir)
@@ -2444,7 +2434,7 @@ class UNET_3D_multiclass_v2(UNET_3D_multiclass):
                     
                     outF = open(checkpoint_file, "w")
                     for line in [model_checkpoint_path,all_model_checkpoint_paths]:
-                          print >>outF, line
+                          print(line, file=outF)
                     outF.close()
               self.towritedir = kwargs.get('towritedir', self.towritedir)        
               self.filter1stnumb = kwargs.get('filter1stnumb', 32)
@@ -2459,107 +2449,107 @@ class UNET_3D_multiclass_v2(UNET_3D_multiclass):
               self.learning_rate = 0.0001
               self.accuracy = 0.0
               self.dice = 0.0
-    	      self.num_labels = kwargs.get('num_labels', self.num_labels) 	
+              self.num_labels = kwargs.get('num_labels', self.num_labels)       
               self.conv_kernel_size = kwargs.get('conv_kernel_size', self.conv_kernel_size) 
               self.batch_norm = kwargs.get('batch_norm', False) 
               self.dropout_layer = kwargs.get('dropout_layer', False) 
               self.print_shape = kwargs.get('print_shape', False) 
-	
-	
+        
+        
     def build_model(self, X):
         with tf.device('/gpu:'+self.gpu_num):
-			self.IMG_WIDTH = X[0].shape[0]
-			self.IMG_HEIGHT = X[0].shape[1]
-			self.IMG_LENGTH = X[0].shape[2]
+                        self.IMG_WIDTH = X[0].shape[0]
+                        self.IMG_HEIGHT = X[0].shape[1]
+                        self.IMG_LENGTH = X[0].shape[2]
               
-			block1, conv2=full_block(X,self.filter1stnumb,
-							   self.conv_kernel_size, 'SAME', tf.nn.relu,
-							   self.pool_size,
-							   'conv1', 'conv2', 'pool1',
-							   self.batch_norm,
-							   self.dropout_layer,
-							   print_shape=self.print_shape,
-							   drop_rate=self.drop_rate,drop_training=self.drop_training)
-			block2, conv4=full_block(block1,self.filter1stnumb*2,
-							   self.conv_kernel_size, 'SAME', tf.nn.relu,
-							   self.pool_size,
-							   'conv3','conv4', 'pool2',
-							   self.batch_norm,
-							   self.dropout_layer,
-							   print_shape=self.print_shape,
-							   drop_rate=self.drop_rate,drop_training=self.drop_training)
-			block3, conv6=full_block(block2,self.filter1stnumb*4,
-							   self.conv_kernel_size,
-							   'SAME',tf.nn.relu,self.pool_size,
-							   'conv5','conv6','pool3',
-							   self.batch_norm,
-							   self.dropout_layer,
-							   print_shape=self.print_shape,
-							   drop_rate=self.drop_rate,drop_training=self.drop_training)
-			block4, conv8=full_block(block3,self.filter1stnumb*8,
-							   self.conv_kernel_size,'SAME',tf.nn.relu,
-							   self.pool_size,
-							   'conv7','conv8','pool4',
-							   self.batch_norm,
-							   self.dropout_layer,
-							   print_shape=self.print_shape,
-							   drop_rate=self.drop_rate,drop_training=self.drop_training)
-			block5 = conv3d_block(block4,self.filter1stnumb*16,
-							   self.conv_kernel_size,'SAME',tf.nn.relu,
-							   'conv9','conv10',
-							   self.batch_norm,
-							   print_shape=self.print_shape)             
-			dropout = tf.layers.dropout(block5,
+                        block1, conv2=full_block(X,self.filter1stnumb,
+                                                           self.conv_kernel_size, 'SAME', tf.nn.relu,
+                                                           self.pool_size,
+                                                           'conv1', 'conv2', 'pool1',
+                                                           self.batch_norm,
+                                                           self.dropout_layer,
+                                                           print_shape=self.print_shape,
+                                                           drop_rate=self.drop_rate,drop_training=self.drop_training)
+                        block2, conv4=full_block(block1,self.filter1stnumb*2,
+                                                           self.conv_kernel_size, 'SAME', tf.nn.relu,
+                                                           self.pool_size,
+                                                           'conv3','conv4', 'pool2',
+                                                           self.batch_norm,
+                                                           self.dropout_layer,
+                                                           print_shape=self.print_shape,
+                                                           drop_rate=self.drop_rate,drop_training=self.drop_training)
+                        block3, conv6=full_block(block2,self.filter1stnumb*4,
+                                                           self.conv_kernel_size,
+                                                           'SAME',tf.nn.relu,self.pool_size,
+                                                           'conv5','conv6','pool3',
+                                                           self.batch_norm,
+                                                           self.dropout_layer,
+                                                           print_shape=self.print_shape,
+                                                           drop_rate=self.drop_rate,drop_training=self.drop_training)
+                        block4, conv8=full_block(block3,self.filter1stnumb*8,
+                                                           self.conv_kernel_size,'SAME',tf.nn.relu,
+                                                           self.pool_size,
+                                                           'conv7','conv8','pool4',
+                                                           self.batch_norm,
+                                                           self.dropout_layer,
+                                                           print_shape=self.print_shape,
+                                                           drop_rate=self.drop_rate,drop_training=self.drop_training)
+                        block5 = conv3d_block(block4,self.filter1stnumb*16,
+                                                           self.conv_kernel_size,'SAME',tf.nn.relu,
+                                                           'conv9','conv10',
+                                                           self.batch_norm,
+                                                           print_shape=self.print_shape)             
+                        dropout = tf.layers.dropout(block5,
                                 self.drop_rate,
                                 training=self.drop_training,
                                 name='dropout')
                                           
-			dimm=[self.IMG_WIDTH / 8,self.IMG_HEIGHT / 8  ,self.IMG_LENGTH / 8 ]
-			block6 = deconv3d_block(dropout,conv8,dimm,self.filter1stnumb*8, self.filter1stnumb*16,
-							self.filter1stnumb*8,self.conv_kernel_size,'SAME',tf.nn.relu,
-							"deconv1",'conv11', 'conv12',
-							self.batch_norm,
-							self.dropout_layer,
-							self.print_shape,
-							self.drop_rate,self.drop_training)
+                        dimm=[self.IMG_WIDTH // 8,self.IMG_HEIGHT // 8  ,self.IMG_LENGTH // 8 ]
+                        block6 = deconv3d_block(dropout,conv8,dimm,self.filter1stnumb*8, self.filter1stnumb*16,
+                                                        self.filter1stnumb*8,self.conv_kernel_size,'SAME',tf.nn.relu,
+                                                        "deconv1",'conv11', 'conv12',
+                                                        self.batch_norm,
+                                                        self.dropout_layer,
+                                                        self.print_shape,
+                                                        self.drop_rate,self.drop_training)
 
-			dimm=[self.IMG_WIDTH / 4,self.IMG_HEIGHT / 4 ,self.IMG_LENGTH / 4 ]
-			block7 = deconv3d_block(block6,conv6,dimm,self.filter1stnumb*4, self.filter1stnumb*8,
-							self.filter1stnumb*4,self.conv_kernel_size,'SAME',tf.nn.relu,
-							"deconv2",'conv13', 'conv14',
-							self.batch_norm,
-							self.dropout_layer,
-							self.print_shape,
-							self.drop_rate,self.drop_training) 
+                        dimm=[self.IMG_WIDTH // 4,self.IMG_HEIGHT // 4 ,self.IMG_LENGTH // 4 ]
+                        block7 = deconv3d_block(block6,conv6,dimm,self.filter1stnumb*4, self.filter1stnumb*8,
+                                                        self.filter1stnumb*4,self.conv_kernel_size,'SAME',tf.nn.relu,
+                                                        "deconv2",'conv13', 'conv14',
+                                                        self.batch_norm,
+                                                        self.dropout_layer,
+                                                        self.print_shape,
+                                                        self.drop_rate,self.drop_training) 
 
-			dimm=[self.IMG_WIDTH / 2,self.IMG_HEIGHT / 2 ,self.IMG_LENGTH / 2 ]
-			block8 = deconv3d_block(block7,conv4,dimm,self.filter1stnumb*2, self.filter1stnumb*4,
-							self.filter1stnumb*2,self.conv_kernel_size,'SAME',tf.nn.relu,
-							"deconv3",'conv15', 'conv16',
-							self.batch_norm,
-							self.dropout_layer,
-							self.print_shape,
-							self.drop_rate,self.drop_training) 
+                        dimm=[self.IMG_WIDTH // 2,self.IMG_HEIGHT // 2 ,self.IMG_LENGTH // 2 ]
+                        block8 = deconv3d_block(block7,conv4,dimm,self.filter1stnumb*2, self.filter1stnumb*4,
+                                                        self.filter1stnumb*2,self.conv_kernel_size,'SAME',tf.nn.relu,
+                                                        "deconv3",'conv15', 'conv16',
+                                                        self.batch_norm,
+                                                        self.dropout_layer,
+                                                        self.print_shape,
+                                                        self.drop_rate,self.drop_training) 
 
-			dimm=[self.IMG_WIDTH ,self.IMG_HEIGHT ,self.IMG_LENGTH]
-			block9 = deconv3d_block(block8,conv2,dimm,self.filter1stnumb*1, self.filter1stnumb*2,
-							self.filter1stnumb,self.conv_kernel_size,'SAME',tf.nn.relu,
-							"deconv4",'conv17', 'conv18',
-							self.batch_norm,
-							self.dropout_layer,
-							self.print_shape,
-							self.drop_rate,self.drop_training) 
+                        dimm=[self.IMG_WIDTH ,self.IMG_HEIGHT ,self.IMG_LENGTH]
+                        block9 = deconv3d_block(block8,conv2,dimm,self.filter1stnumb*1, self.filter1stnumb*2,
+                                                        self.filter1stnumb,self.conv_kernel_size,'SAME',tf.nn.relu,
+                                                        "deconv4",'conv17', 'conv18',
+                                                        self.batch_norm,
+                                                        self.dropout_layer,
+                                                        self.print_shape,
+                                                        self.drop_rate,self.drop_training) 
      
-			logits = tf.layers.conv3d(inputs=block9,
+                        logits = tf.layers.conv3d(inputs=block9,
                                         filters=self.num_labels,
                                         kernel_size=[1, 1, 1],
                                         padding='SAME',
                                         activation=tf.identity,
                                         name='logits')
-			if self.print_shape:
-			  print("shape logits: "+str(logits.shape))    
-			     
-			return logits
+                        if self.print_shape:
+                          print("shape logits: "+str(logits.shape))    
+                             
+                        return logits
 
 class UNET_3D_multichannels(UNET_3D_multiclass):
 
@@ -2778,7 +2768,7 @@ class UNET_3D_multichannels(UNET_3D_multiclass):
                                           training=self.drop_training,
                                           name='dropout')
               print("shape dropout: "+str(dropout.shape))
-              deconv1 = deconv3d(dropout, 1, self.IMG_WIDTH / 8, self.filter1stnumb*8, self.filter1stnumb*16, "deconv1")  
+              deconv1 = deconv3d(dropout, 1, self.IMG_WIDTH // 8, self.filter1stnumb*8, self.filter1stnumb*16, "deconv1")  
               print("shape deconv1: "+str(deconv1.shape))
               deconv1 = concatenate([deconv1, conv8]) 
               print("shape deconv1 concat: "+str(deconv1.shape))      
@@ -2798,7 +2788,7 @@ class UNET_3D_multichannels(UNET_3D_multiclass):
                                         activation=tf.nn.relu,      
                                         name='conv12')             
               print("shape conv12: "+str(conv12.shape))              
-              deconv2 = deconv3d(conv12, 1,self.IMG_WIDTH / 4, self.filter1stnumb*4, self.filter1stnumb*8, "deconv2")  # 32
+              deconv2 = deconv3d(conv12, 1,self.IMG_WIDTH // 4, self.filter1stnumb*4, self.filter1stnumb*8, "deconv2")  # 32
               print("shape deconv2: "+str(deconv2.shape))
               deconv2 = concatenate([deconv2, conv6]) 
               print("shape deconv2 concat: "+str(deconv2.shape))
@@ -2816,7 +2806,7 @@ class UNET_3D_multichannels(UNET_3D_multiclass):
                                         activation=tf.nn.relu,
                                         name='conv14')
               print("shape conv14: "+str(conv14.shape))              
-              deconv3 = deconv3d(conv14, 1, self.IMG_WIDTH / 2, self.filter1stnumb*2, self.filter1stnumb*4, "deconv3")  # 32
+              deconv3 = deconv3d(conv14, 1, self.IMG_WIDTH // 2, self.filter1stnumb*2, self.filter1stnumb*4, "deconv3")  # 32
               print("shape deconv3: "+str(deconv3.shape))
               deconv3 = concatenate([deconv3, conv4]) 
               print("shape deconv3 concat: "+str(deconv3.shape))      
@@ -2881,34 +2871,34 @@ class UNET_3D_multichannels(UNET_3D_multiclass):
                   self.IMG_LENGTH = X_t[0].shape[2]
                   self.IMG_CHANNEL = X_t[0].shape[3]
 
-		  
+                  
                   Y_type=tf.float32
-		  X_type=tf.float32
-		  if X_t.dtype == np.float16:
-			X_type=tf.float16
-		  if Y_t is not None:
-		  	if Y_t.dtype == np.float16:
-				Y_type=tf.float16
+                  X_type=tf.float32
+                  if X_t.dtype == np.float16:
+                        X_type=tf.float16
+                  if Y_t is not None:
+                        if Y_t.dtype == np.float16:
+                                Y_type=tf.float16
 
-		  if  self.IMG_CHANNEL != 1: 
-                  	
-                  	self.X = tf.placeholder(X_type, [None, self.IMG_WIDTH, self.IMG_HEIGHT,self.IMG_LENGTH,self.IMG_CHANNEL, 1])
-                  	if Y_t is not None:
+                  if  self.IMG_CHANNEL != 1: 
+                        
+                        self.X = tf.placeholder(X_type, [None, self.IMG_WIDTH, self.IMG_HEIGHT,self.IMG_LENGTH,self.IMG_CHANNEL, 1])
+                        if Y_t is not None:
                           self.Y_ = tf.placeholder(Y_type, [None, self.IMG_WIDTH, self.IMG_HEIGHT,self.IMG_LENGTH, 1])
                           self.labels = Y_t
                           self.label_type=Y_t.dtype
-                  	self.dims=[self.IMG_WIDTH, self.IMG_HEIGHT,self.IMG_LENGTH]
-		  else:
-                  	self.IMG_CHANNEL = self.IMG_LENGTH
-                  	self.X = tf.placeholder(X_type, [None, self.IMG_WIDTH, self.IMG_HEIGHT,self.IMG_CHANNEL, 1])
-                  	if Y_t is not None:
+                        self.dims=[self.IMG_WIDTH, self.IMG_HEIGHT,self.IMG_LENGTH]
+                  else:
+                        self.IMG_CHANNEL = self.IMG_LENGTH
+                        self.X = tf.placeholder(X_type, [None, self.IMG_WIDTH, self.IMG_HEIGHT,self.IMG_CHANNEL, 1])
+                        if Y_t is not None:
                           self.Y_ = tf.placeholder(Y_type, [None, self.IMG_WIDTH, self.IMG_HEIGHT, 1])
                           self.labels = Y_t
                           self.label_type=Y_t.dtype
-                  	self.dims=[self.IMG_WIDTH, self.IMG_HEIGHT]
+                        self.dims=[self.IMG_WIDTH, self.IMG_HEIGHT]
                   self.images  = X_t 
                   self.image_type = X_t.dtype
-		          
+                          
 
     def train(self,X_train,Y_train, **kwargs):
         
@@ -2953,11 +2943,11 @@ class UNET_3D_multichannels(UNET_3D_multiclass):
                     elif self.loss_type == "softmax_cross_entropy":
                            self.loss = tf.losses.softmax_cross_entropy(tf.cast(self.Y_, tf.int32),predicted)
 
-		    elif self.loss_type == "sparse_softmax_cross_entropy":
-			   self.loss = tf.losses.sparse_softmax_cross_entropy(tf.cast(self.Y_, tf.int32),predicted ) 
+                    elif self.loss_type == "sparse_softmax_cross_entropy":
+                           self.loss = tf.losses.sparse_softmax_cross_entropy(tf.cast(self.Y_, tf.int32),predicted ) 
                                        
- 		    elif self.loss_type == "softmax_cross_entropy_with_logits":
-			   self.loss = tf.nn.softmax_cross_entropy_with_logits_v2(labels=self.Y_,logits=predicted )                         
+                    elif self.loss_type == "softmax_cross_entropy_with_logits":
+                           self.loss = tf.nn.softmax_cross_entropy_with_logits(labels=self.Y_,logits=predicted )                         
                     
                     elif self.loss_type == "dice_score": 
                           self.loss = 1 - dice_coe(predicted,self.Y_,smooth=1e-8)
@@ -3004,7 +2994,7 @@ class UNET_3D_multichannels(UNET_3D_multiclass):
               batch_count = 0
               writer = tf.summary.FileWriter(self.towritedir, tf.get_default_graph())
               
-              for i in xrange(self.iterations):
+              for i in range(self.iterations):
                   # training on batches 
                   if (batch_count > self.batch_count_thr):
                       batch_count = 0
@@ -3143,14 +3133,14 @@ class UNET_3D_multichannels(UNET_3D_multiclass):
               
               test_data = {self.X: test_image_reshape}
               #result_mask = self.sess.run([self.logits], feed_dict=test_data)
-	      result_mask = self.sess.run([tf.argmax(tf.nn.log_softmax(self.logits, axis=-1), axis=-1)	], feed_dict=test_data)
+              result_mask = self.sess.run([tf.argmax(tf.nn.log_softmax(self.logits, axis=-1), axis=-1)  ], feed_dict=test_data)
       
-	      #return result_mask
+              #return result_mask
 
               result_mask = np.reshape(np.squeeze(result_mask), [self.IMG_WIDTH, self.IMG_HEIGHT,self.IMG_LENGTH, 1])
               
               result_mask_seqeeze_orig[i] = result_mask.squeeze()
-              result_mask_seqeeze = result_mask.squeeze().astype(np.float)
+              result_mask_seqeeze = result_mask.squeeze().astype(float)
               result_mask_seqeeze_int_all = integerize_seg(result_mask_seqeeze_orig[i])
               accuracy_vv=np.zeros([len(seg_labels)])
               MCC_vv=np.zeros([len(seg_labels)])
@@ -3163,8 +3153,8 @@ class UNET_3D_multichannels(UNET_3D_multiclass):
               dice_score_vv=np.zeros([len(seg_labels)])
               if acc_flag :
                        for idx,value in enumerate(seg_labels): 
-                           result_mask_seqeeze_int=(result_mask_seqeeze_int_all==value).astype(np.int)
-                           test_mask=(test_mask_all==value).astype(np.int)
+                           result_mask_seqeeze_int=(result_mask_seqeeze_int_all==value).astype(int)
+                           test_mask=(test_mask_all==value).astype(int)
                            try:
                                ConfMat = ConfusionMatrix(result_mask_seqeeze_int, test_mask)
                                accuracy_vv[idx]=ConfMat.accuracy
@@ -3174,8 +3164,8 @@ class UNET_3D_multichannels(UNET_3D_multiclass):
                        accuracy_v[i,:]=accuracy_vv
               if metrics_flag:
                                 for idx,value in enumerate(seg_labels):
-                                    result_mask_seqeeze_int=(result_mask_seqeeze_int_all==value).astype(np.int)
-                                    test_mask=(test_mask_all==value).astype(np.int)
+                                    result_mask_seqeeze_int=(result_mask_seqeeze_int_all==value).astype(int)
+                                    test_mask=(test_mask_all==value).astype(int)
                                     try:
                                         ConfMat = ConfusionMatrix(result_mask_seqeeze_int, test_mask)
                                     
@@ -3213,8 +3203,8 @@ class UNET_3D_multichannels(UNET_3D_multiclass):
                     
               if plot_accuracy:
                            for idx,value in enumerate(seg_labels):
-                               result_mask_seqeeze_int=(result_mask_seqeeze_int_all==value).astype(np.int)
-                               test_mask=(test_mask_all==value).astype(np.int)
+                               result_mask_seqeeze_int=(result_mask_seqeeze_int_all==value).astype(int)
+                               test_mask=(test_mask_all==value).astype(int)
                                try:
                                    ConfMat = ConfusionMatrix(result_mask_seqeeze_int, test_mask)
                                    ConfMat.plot(),plt.suptitle("index: "+str(ix)+" -  label: "+str(value)+" - Accuracy: "+'%.3f' % ConfMat.accuracy + " - Dice Score: "+'%.3f' % ConfMat.Dice_score)
@@ -3250,51 +3240,51 @@ class UNET_3D_multichannels(UNET_3D_multiclass):
               self.dice_score   =  dice_score_v
 
 
-	      if print_metrics_flag:
+              if print_metrics_flag:
 
-	
-		      print "Average metrics (between labels): "	
-		      print 'Sensitivity (recall):    {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=np.mean(self.sensitivity_avg),std_vall=np.std(self.sensitivity_avg))
-		      print 'Specificity:             {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=np.mean(self.specificity_avg),std_vall=np.std(self.specificity_avg))
-		      print 'Accuracy:                {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=np.mean(self.accuracy_avg),std_vall=np.std(self.accuracy_avg))
-		      print 'Dice Score:              {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=np.mean(self.dice_score_avg),std_vall=np.std(self.dice_score_avg))
-		      print 'Precision:               {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=np.mean(self.precision_avg),std_vall=np.std(self.precision_avg))
-		      print 'F1 score:                {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=np.mean(self.f1_score_avg),std_vall=np.std(self.f1_score_avg))
-		      print 'MCC:                     {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=np.mean(self.MCC_avg),std_vall=np.std(self.MCC_avg))
-		      print 'Youden index:            {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=np.mean(self.Youden_index_avg),std_vall=np.std(self.Youden_index_avg)) 
-		      print 'Pearson coef:            {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=np.mean(self.pearscoeff_avg),std_vall=np.std(self.pearscoeff_avg))
-	
-	      if print_separately_flag:
+        
+                      print("Average metrics (between labels): "        )
+                      print('Sensitivity (recall):    {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=np.mean(self.sensitivity_avg),std_vall=np.std(self.sensitivity_avg)))
+                      print('Specificity:             {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=np.mean(self.specificity_avg),std_vall=np.std(self.specificity_avg)))
+                      print('Accuracy:                {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=np.mean(self.accuracy_avg),std_vall=np.std(self.accuracy_avg)))
+                      print('Dice Score:              {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=np.mean(self.dice_score_avg),std_vall=np.std(self.dice_score_avg)))
+                      print('Precision:               {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=np.mean(self.precision_avg),std_vall=np.std(self.precision_avg)))
+                      print('F1 score:                {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=np.mean(self.f1_score_avg),std_vall=np.std(self.f1_score_avg)))
+                      print('MCC:                     {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=np.mean(self.MCC_avg),std_vall=np.std(self.MCC_avg)))
+                      print('Youden index:            {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=np.mean(self.Youden_index_avg),std_vall=np.std(self.Youden_index_avg)) )
+                      print('Pearson coef:            {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=np.mean(self.pearscoeff_avg),std_vall=np.std(self.pearscoeff_avg)))
+        
+              if print_separately_flag:
 
-			for idx,value in enumerate(seg_labels):
+                        for idx,value in enumerate(seg_labels):
 
-			      print("Metrics label: "+ str(value))	
-			      
-			      print 'Sensitivity (recall):    {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=self.sensitivity_avg[idx],std_vall=self.sensitivity_std[idx])
-			      print 'Specificity:             {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=self.specificity_avg[idx],std_vall=self.specificity_std[idx])
-			      print 'Accuracy:                {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=self.accuracy_avg[idx],std_vall=self.accuracy_std[idx])
-			      print 'Dice Score:              {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=self.dice_score_avg[idx],std_vall=self.dice_score_std[idx])
-			      print 'Precision:               {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=self.precision_avg[idx],std_vall=self.precision_std[idx])              
-			      print 'F1 score:                {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=self.f1_score_avg[idx],std_vall=self.f1_score_std[idx])
-			      print 'MCC:                     {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=self.MCC_avg[idx],std_vall=self.MCC_std[idx])
-			      print 'Youden index:            {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=self.Youden_index_avg[idx],std_vall=self.Youden_index_std[idx])
-			      print 'Pearson coef:            {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=self.pearscoeff_avg[idx],std_vall=self.pearscoeff_std[idx])
+                              print("Metrics label: "+ str(value))      
+                              
+                              print('Sensitivity (recall):    {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=self.sensitivity_avg[idx],std_vall=self.sensitivity_std[idx]))
+                              print('Specificity:             {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=self.specificity_avg[idx],std_vall=self.specificity_std[idx]))
+                              print('Accuracy:                {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=self.accuracy_avg[idx],std_vall=self.accuracy_std[idx]))
+                              print('Dice Score:              {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=self.dice_score_avg[idx],std_vall=self.dice_score_std[idx]))
+                              print('Precision:               {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=self.precision_avg[idx],std_vall=self.precision_std[idx])              )
+                              print('F1 score:                {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=self.f1_score_avg[idx],std_vall=self.f1_score_std[idx]))
+                              print('MCC:                     {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=self.MCC_avg[idx],std_vall=self.MCC_std[idx]))
+                              print('Youden index:            {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=self.Youden_index_avg[idx],std_vall=self.Youden_index_std[idx]))
+                              print('Pearson coef:            {mean_vall:.4f} (+/- {std_vall:.4f})'.format(mean_vall=self.pearscoeff_avg[idx],std_vall=self.pearscoeff_std[idx]))
         i=-1
         if plot_flag:
             
             for ix in indices: 
                  test_mask_i = Y_test[ix].astype(float)
                  test_mask = test_mask_i[:, :, :, 0]
-		 i=i+1
+                 i=i+1
                  OrtoView(result_mask_seqeeze_orig[i], colormap=matplotlib.cm.jet), plt.suptitle("index: "+str(ix)+" Predicted Segmentation")
 
-		 if plot_ground_truth:
-		 	OrtoView(test_mask, colormap=matplotlib.cm.jet), plt.suptitle("index: "+str(ix)+" Ground Truth Segmentation")	
+                 if plot_ground_truth:
+                        OrtoView(test_mask, colormap=matplotlib.cm.jet), plt.suptitle("index: "+str(ix)+" Ground Truth Segmentation")   
                  result_mask_seqeeze_int_all = integerize_seg(result_mask_seqeeze_orig[i]) 
                  if plot_separately_flag:
                      for idx,value in enumerate(seg_labels):
-                          result_mask_seqeeze_int=(result_mask_seqeeze_int_all==value).astype(np.int)
-                          test_mask=(test_mask_all==value).astype(np.int)                
+                          result_mask_seqeeze_int=(result_mask_seqeeze_int_all==value).astype(int)
+                          test_mask=(test_mask_all==value).astype(int)                
                           OrtoView(result_mask_seqeeze_int, colormap=matplotlib.cm.jet), plt.suptitle("label: "+str(value)+" - Predicted mask")
                           OrtoView(test_image[i,:,:,:,0],Mask=test_mask), plt.suptitle("label: "+str(value)+"Ground Truth Mask superimposed on the Test Image")
                           OrtoView(test_image[i,:,:,:,0],Mask=result_mask_seqeeze_int), plt.suptitle("label: "+str(value)+" Predicted Mask superimposed on the Test image")
@@ -3353,12 +3343,12 @@ class UNET_3D_multichannels(UNET_3D_multiclass):
               test_image_reshape = np.reshape(test_image[i], [-1, self.IMG_WIDTH, self.IMG_HEIGHT,self.IMG_LENGTH,self.IMG_CHANNEL,  1])
               
               test_data = {self.X: test_image_reshape}
-              result_mask = self.sess.run([tf.argmax(tf.nn.log_softmax(self.logits, axis=-1), axis=-1)	], feed_dict=test_data)
+              result_mask = self.sess.run([tf.argmax(tf.nn.log_softmax(self.logits, axis=-1), axis=-1)  ], feed_dict=test_data)
               result_mask_softmax_i =  self.sess.run([tf.nn.log_softmax(self.logits, axis=-1)], feed_dict=test_data)
               result_mask_softmax[i]=np.array(result_mask_softmax_i).squeeze()
               result_mask = np.reshape(np.squeeze(result_mask), [self.IMG_WIDTH, self.IMG_HEIGHT,self.IMG_LENGTH, 1])
               result_mask_seqeeze_orig[i] = result_mask.squeeze()
-              result_mask_seqeeze = result_mask.squeeze().astype(np.float)
+              result_mask_seqeeze = result_mask.squeeze().astype(float)
               result_mask_seqeeze_int_all = integerize_seg(result_mask_seqeeze_orig[i])            
               
               if seg_labels is None:
@@ -3379,16 +3369,16 @@ class UNET_3D_multichannels(UNET_3D_multiclass):
                       seg_labels=[seg_labels]
 
               
-	i=-1
+        i=-1
         if plot_flag:
             
             for ix in indices: 
-		 i=i+1
+                 i=i+1
                  OrtoView(result_mask_seqeeze_orig[i], colormap=matplotlib.cm.jet), plt.suptitle("index: "+str(ix)+" Predicted Segmentation")
                  result_mask_seqeeze_int_all = integerize_seg(result_mask_seqeeze_orig[i]) 
                  if plot_separately_flag:
                      for idx,value in enumerate(seg_labels):
-                          result_mask_seqeeze_int=(result_mask_seqeeze_int_all==value).astype(np.int)
+                          result_mask_seqeeze_int=(result_mask_seqeeze_int_all==value).astype(int)
                           OrtoView(result_mask_seqeeze_int, colormap=matplotlib.cm.jet), plt.suptitle("label: "+str(value)+" result mask")
                           OrtoView(test_image[i],Mask=result_mask_seqeeze_int), plt.suptitle("label: "+str(value)+" Test image vs  Result Mask")
         if result_mask_seqeeze_orig.shape[0] == 1:
@@ -3512,7 +3502,7 @@ class UNET_2D(UNET_3D):
                                           training=self.drop_training,
                                           name='dropout')
               print("shape dropout: "+str(dropout.shape))
-              deconv1 = deconv2d(dropout, 1, self.IMG_WIDTH / 8, self.filter1stnumb*8, self.filter1stnumb*16, "deconv1")  
+              deconv1 = deconv2d(dropout, 1, self.IMG_WIDTH // 8, self.filter1stnumb*8, self.filter1stnumb*16, "deconv1")  
               print("shape deconv1: "+str(deconv1.shape))
               deconv1 = concatenate2d([deconv1, conv8]) 
               print("shape deconv1 concat: "+str(deconv1.shape))      
@@ -3532,7 +3522,7 @@ class UNET_2D(UNET_3D):
                                         activation=tf.nn.relu,      
                                         name='conv12')             
               print("shape conv12: "+str(conv12.shape))              
-              deconv2 = deconv2d(conv12, 1,self.IMG_WIDTH / 4, self.filter1stnumb*4, self.filter1stnumb*8, "deconv2")  # 32
+              deconv2 = deconv2d(conv12, 1,self.IMG_WIDTH // 4, self.filter1stnumb*4, self.filter1stnumb*8, "deconv2")  # 32
               print("shape deconv2: "+str(deconv2.shape))
               deconv2 = concatenate2d([deconv2, conv6]) 
               print("shape deconv2 concat: "+str(deconv2.shape))
@@ -3550,7 +3540,7 @@ class UNET_2D(UNET_3D):
                                         activation=tf.nn.relu,
                                         name='conv14')
               print("shape conv14: "+str(conv14.shape))              
-              deconv3 = deconv2d(conv14, 1, self.IMG_WIDTH / 2, self.filter1stnumb*2, self.filter1stnumb*4, "deconv3")  # 32
+              deconv3 = deconv2d(conv14, 1, self.IMG_WIDTH // 2, self.filter1stnumb*2, self.filter1stnumb*4, "deconv3")  # 32
               print("shape deconv2: "+str(deconv2.shape))
               deconv3 = concatenate2d([deconv3, conv4]) 
               print("shape deconv2 concat: "+str(deconv3.shape))      
@@ -3630,7 +3620,7 @@ class UNET_2D(UNET_3D):
         Maps =  self.sess.run([self.midmaps], feed_dict=test_data)
         result_mask = np.reshape(np.squeeze(result_mask), [self.IMG_WIDTH, self.IMG_HEIGHT, 1])
         result_mask_seqeeze_orig = result_mask.squeeze()
-        result_mask_seqeeze = result_mask.squeeze().astype(np.float)
+        result_mask_seqeeze = result_mask.squeeze().astype(float)
         result_mask_seqeeze_int_all = integerize_seg(result_mask_seqeeze_orig)
         return Maps[0],result_mask_seqeeze_int_all
 
@@ -3741,7 +3731,7 @@ class UNET_2D_multiclass(UNET_3D):
                                           training=self.drop_training,
                                           name='dropout')
               print("shape dropout: "+str(dropout.shape))
-              deconv1 = deconv2d(dropout, 1, self.IMG_WIDTH / 8, self.filter1stnumb*8, self.filter1stnumb*16, "deconv1")  
+              deconv1 = deconv2d(dropout, 1, self.IMG_WIDTH // 8, self.filter1stnumb*8, self.filter1stnumb*16, "deconv1")  
               print("shape deconv1: "+str(deconv1.shape))
               deconv1 = concatenate2d([deconv1, conv8]) 
               print("shape deconv1 concat: "+str(deconv1.shape))      
@@ -3761,7 +3751,7 @@ class UNET_2D_multiclass(UNET_3D):
                                         activation=tf.nn.relu,      
                                         name='conv12')             
               print("shape conv12: "+str(conv12.shape))              
-              deconv2 = deconv2d(conv12, 1,self.IMG_WIDTH / 4, self.filter1stnumb*4, self.filter1stnumb*8, "deconv2")  # 32
+              deconv2 = deconv2d(conv12, 1,self.IMG_WIDTH // 4, self.filter1stnumb*4, self.filter1stnumb*8, "deconv2")  # 32
               print("shape deconv2: "+str(deconv2.shape))
               deconv2 = concatenate2d([deconv2, conv6]) 
               print("shape deconv2 concat: "+str(deconv2.shape))
@@ -3779,7 +3769,7 @@ class UNET_2D_multiclass(UNET_3D):
                                         activation=tf.nn.relu,
                                         name='conv14')
               print("shape conv14: "+str(conv14.shape))              
-              deconv3 = deconv2d(conv14, 1, self.IMG_WIDTH / 2, self.filter1stnumb*2, self.filter1stnumb*4, "deconv3")  # 32
+              deconv3 = deconv2d(conv14, 1, self.IMG_WIDTH // 2, self.filter1stnumb*2, self.filter1stnumb*4, "deconv3")  # 32
               print("shape deconv2: "+str(deconv2.shape))
               deconv3 = concatenate2d([deconv3, conv4]) 
               print("shape deconv2 concat: "+str(deconv3.shape))      
@@ -3855,12 +3845,12 @@ class UNET_2D_multiclass(UNET_3D):
         test_image = test_image_i[:, :, 0]
         test_image_reshape = np.reshape(test_image, [-1, self.IMG_WIDTH, self.IMG_HEIGHT, 1])
         test_data = {self.X: test_image_reshape}
-        result_mask = self.sess.run([tf.argmax(tf.nn.log_softmax(self.logits, axis=-1), axis=-1)	], feed_dict=test_data)
+        result_mask = self.sess.run([tf.argmax(tf.nn.log_softmax(self.logits, axis=-1), axis=-1)        ], feed_dict=test_data)
 
         Maps =  self.sess.run([self.midmaps], feed_dict=test_data)
         result_mask = np.reshape(np.squeeze(result_mask), [self.IMG_WIDTH, self.IMG_HEIGHT, 1])
         result_mask_seqeeze_orig = result_mask.squeeze()
-        result_mask_seqeeze = result_mask.squeeze().astype(np.float)
+        result_mask_seqeeze = result_mask.squeeze().astype(float)
         result_mask_seqeeze_int_all = integerize_seg(result_mask_seqeeze_orig)
         return Maps[0],result_mask_seqeeze_int_all
 
@@ -3922,11 +3912,11 @@ class UNET_2D_multiclass(UNET_3D):
               test_image_reshape = np.reshape(test_image[i],rsp_dim)
               
               test_data = {self.X: test_image_reshape}
-              result_mask = self.sess.run([tf.argmax(tf.nn.log_softmax(self.logits, axis=-1), axis=-1)	], feed_dict=test_data)
+              result_mask = self.sess.run([tf.argmax(tf.nn.log_softmax(self.logits, axis=-1), axis=-1)  ], feed_dict=test_data)
               result_mask = np.reshape(np.squeeze(result_mask), rslt_dim)
               
               result_mask_seqeeze_orig[i] = result_mask.squeeze()
-              result_mask_seqeeze = result_mask.squeeze().astype(np.float)
+              result_mask_seqeeze = result_mask.squeeze().astype(float)
               result_mask_seqeeze_int = integerize(result_mask_seqeeze_orig[i])
               
               
@@ -3964,15 +3954,15 @@ class UNET_2D_multiclass(UNET_3D):
               self.f1_score     =  np.mean(f1_score_v)
               self.precision    =  np.mean(precision_v)
               self.dice_score   =  np.mean(dice_score_v)
-              print 'Sensitivity (recall):    {}'.format(round(self.sensitivity,4))
-              print 'Specificity:             {}'.format(round(self.specificity,4))
-              print 'Accuracy:                {}'.format(round(self.accuracy,4))               
-              print 'Dice Score:              {}'.format(round(self.dice_score,4))
-              print 'Precision:               {}'.format(round(self.precision,4))               
-              print 'F1 score:                {}'.format(round(self.f1_score,4))
-              print 'MCC:                     {}'.format(round(self.MCC,4))
-              print 'Youden index:            {}'.format(round(self.Youden_index,4)) 
-              print 'Pearson coef:            {}'.format(round(self.pearscoeff,4))
+              print('Sensitivity (recall):    {}'.format(round(self.sensitivity,4)))
+              print('Specificity:             {}'.format(round(self.specificity,4)))
+              print('Accuracy:                {}'.format(round(self.accuracy,4))               )
+              print('Dice Score:              {}'.format(round(self.dice_score,4)))
+              print('Precision:               {}'.format(round(self.precision,4))               )
+              print('F1 score:                {}'.format(round(self.f1_score,4)))
+              print('MCC:                     {}'.format(round(self.MCC,4)))
+              print('Youden index:            {}'.format(round(self.Youden_index,4)) )
+              print('Pearson coef:            {}'.format(round(self.pearscoeff,4)))
         
         if plot_flag:
             i=-1
@@ -4041,10 +4031,10 @@ class UNET_2D_multiclass(UNET_3D):
               test_image[i] = np.squeeze(test_image_i)             
               test_image_reshape = np.reshape(test_image[i], rsp_dim)              
               test_data = {self.X: test_image_reshape}
-              result_mask = self.sess.run([tf.argmax(tf.nn.log_softmax(self.logits, axis=-1), axis=-1)	], feed_dict=test_data)
+              result_mask = self.sess.run([tf.argmax(tf.nn.log_softmax(self.logits, axis=-1), axis=-1)  ], feed_dict=test_data)
               result_mask = np.reshape(np.squeeze(result_mask), rslt_dim)              
               result_mask_seqeeze_orig[i] = result_mask.squeeze()
-              result_mask_seqeeze = result_mask.squeeze().astype(np.float)
+              result_mask_seqeeze = result_mask.squeeze().astype(float)
               result_mask_seqeeze_int = integerize(result_mask_seqeeze_orig[i])
                
         
@@ -4257,7 +4247,7 @@ class UNET_2D_8blocks(UNET_2D_multiclass):
 
 ### Deconvolutional Path
 
-              deconv1 = deconv2d(dropout, 1, self.IMG_WIDTH / 128, self.filter1stnumb*128, self.filter1stnumb*256, "deconv1")  
+              deconv1 = deconv2d(dropout, 1, self.IMG_WIDTH // 128, self.filter1stnumb*128, self.filter1stnumb*256, "deconv1")  
               print("shape deconv1: "+str(deconv1.shape))
               deconv1 = concatenate2d([deconv1, conv16]) 
               print("shape deconv1 concat: "+str(deconv1.shape))      
@@ -4280,7 +4270,7 @@ class UNET_2D_8blocks(UNET_2D_multiclass):
 
 ##
 
-              deconv2 = deconv2d(conv20, 1, self.IMG_WIDTH / 64, self.filter1stnumb*64, self.filter1stnumb*128, "deconv2")  
+              deconv2 = deconv2d(conv20, 1, self.IMG_WIDTH // 64, self.filter1stnumb*64, self.filter1stnumb*128, "deconv2")  
               print("shape deconv2: "+str(deconv2.shape))
               deconv2 = concatenate2d([deconv2, conv14]) 
               print("shape deconv2 concat: "+str(deconv2.shape))      
@@ -4300,7 +4290,7 @@ class UNET_2D_8blocks(UNET_2D_multiclass):
                                         activation=tf.nn.relu,      
                                         name='conv22')             
               print("shape conv22: "+str(conv22.shape))              
-              deconv3 = deconv2d(conv22, 1,self.IMG_WIDTH / 32, self.filter1stnumb*32, self.filter1stnumb*64, "deconv3")  # 32
+              deconv3 = deconv2d(conv22, 1,self.IMG_WIDTH // 32, self.filter1stnumb*32, self.filter1stnumb*64, "deconv3")  # 32
               print("shape deconv3: "+str(deconv3.shape))
               deconv3 = concatenate2d([deconv3, conv12]) 
               print("shape deconv3 concat: "+str(deconv3.shape))
@@ -4318,7 +4308,7 @@ class UNET_2D_8blocks(UNET_2D_multiclass):
                                         activation=tf.nn.relu,
                                         name='conv24')
               print("shape conv14: "+str(conv24.shape))              
-              deconv4 = deconv2d(conv24, 1, self.IMG_WIDTH / 16, self.filter1stnumb*16, self.filter1stnumb*32, "deconv4")  # 32
+              deconv4 = deconv2d(conv24, 1, self.IMG_WIDTH // 16, self.filter1stnumb*16, self.filter1stnumb*32, "deconv4")  # 32
               print("shape deconv2: "+str(deconv2.shape))
               deconv4 = concatenate2d([deconv4, conv10]) 
               print("shape deconv2 concat: "+str(deconv3.shape))      
@@ -4336,7 +4326,7 @@ class UNET_2D_8blocks(UNET_2D_multiclass):
                                         activation=tf.nn.relu,
                                         name='conv26')
               print("shape conv26: "+str(conv26.shape))              
-              deconv5 = deconv2d(conv26, 1, self.IMG_WIDTH/8, self.filter1stnumb*8, self.filter1stnumb*16, "deconv5")  # 32
+              deconv5 = deconv2d(conv26, 1, self.IMG_WIDTH//8, self.filter1stnumb*8, self.filter1stnumb*16, "deconv5")  # 32
               print("shape deconv5: "+str(deconv5.shape))
               deconv5 = concatenate2d([deconv5, conv8]) 
               print("shape deconv5 concat: "+str(deconv5.shape))  
@@ -4358,7 +4348,7 @@ class UNET_2D_8blocks(UNET_2D_multiclass):
                                         activation=tf.nn.relu,      
                                         name='conv28')             
               print("shape conv28: "+str(conv28.shape))              
-              deconv6 = deconv2d(conv28, 1,self.IMG_WIDTH / 4, self.filter1stnumb*4, self.filter1stnumb*8, "deconv6")  # 32
+              deconv6 = deconv2d(conv28, 1,self.IMG_WIDTH // 4, self.filter1stnumb*4, self.filter1stnumb*8, "deconv6")  # 32
               print("shape deconv2: "+str(deconv2.shape))
               deconv6 = concatenate2d([deconv6, conv6]) 
               print("shape deconv2 concat: "+str(deconv2.shape))
@@ -4376,7 +4366,7 @@ class UNET_2D_8blocks(UNET_2D_multiclass):
                                         activation=tf.nn.relu,
                                         name='conv30')
               print("shape conv30: "+str(conv30.shape))              
-              deconv7 = deconv2d(conv30, 1, self.IMG_WIDTH / 2, self.filter1stnumb*2, self.filter1stnumb*4, "deconv7")  # 32
+              deconv7 = deconv2d(conv30, 1, self.IMG_WIDTH // 2, self.filter1stnumb*2, self.filter1stnumb*4, "deconv7")  # 32
               print("shape deconv7: "+str(deconv7.shape))
               deconv7 = concatenate2d([deconv7, conv4]) 
               print("shape deconv7 concat: "+str(deconv7.shape))      
@@ -4487,7 +4477,7 @@ class UNET_3D_light(UNET_3D_multiclass):
               #                            training=self.drop_training,
               #                            name='dropout')
               #print("shape dropout: "+str(dropout.shape))              
-              deconv3 = deconv3d(conv5, 1, self.IMG_WIDTH / 2, self.filter1stnumb*2, self.filter1stnumb*4, "deconv3")  # 32
+              deconv3 = deconv3d(conv5, 1, self.IMG_WIDTH // 2, self.filter1stnumb*2, self.filter1stnumb*4, "deconv3")  # 32
               print("shape deconv3: "+str(deconv3.shape))
               deconv3 = concatenate([deconv3, conv3]) 
               print("shape deconv3 concat: "+str(deconv3.shape))      
@@ -4523,7 +4513,7 @@ class UNET_3D_light(UNET_3D_multiclass):
               #                          activation=tf.nn.relu,
               #                          name='conv18')
               #print("shape conv18: "+str(conv18.shape))       
-	      logits = tf.layers.conv3d(inputs=conv17,
+              logits = tf.layers.conv3d(inputs=conv17,
                                         filters=self.num_labels,
                                         kernel_size=[1, 1, 1],
                                         padding='SAME',
