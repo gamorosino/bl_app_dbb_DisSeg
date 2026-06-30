@@ -9,7 +9,7 @@ plt.close('all')
 def get_vect(fib):
 
     vers=numpy.zeros((fib.shape[0],3))
-    for p in xrange(fib.shape[0]):
+    for p in range(fib.shape[0]):
         if p == fib.shape[0]-1:
             vers[p,:]=vers[p-1,:];
             break
@@ -45,7 +45,7 @@ def get_track_vects(input_track, *args):
     except IndexError:
         downs = 1
 
-    print " Loading VTK  file..."
+    print(" Loading VTK  file...")
 
     reader = vtk.vtkPolyDataReader()
     reader.SetFileName(input_track)
@@ -68,7 +68,7 @@ def get_track_vects(input_track, *args):
     from scipy.ndimage.interpolation import zoom
 
 
-    print " Convert VTK to vectors..."
+    print(" Convert VTK to vectors...")
 
 
     xx=numpy.zeros(1)
@@ -126,7 +126,7 @@ def get_track_vects(input_track, *args):
     zc_l=numpy.abs(zc_l)
     zc_l=norm_vect(zc_l)
     rgb_l=[]
-    for i in xrange(len(xc_l)):
+    for i in range(len(xc_l)):
         rgb_l.append((xc_l[i], yc_l[i], zc_l[i]))
 
     return xx_l, yy_l, zz_l, rgb_l
@@ -141,7 +141,7 @@ def plot_track(track_path,*args):
 
     xx_l, yy_l, zz_l, rgb_l = get_track_vects(track_path, downs)
 
-    print "plot track..."
+    print("plot track...")
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d',axis_bgcolor='black')

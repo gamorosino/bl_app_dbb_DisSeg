@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Created on Thu Oct  7 16:10:08 2021
@@ -37,7 +37,7 @@ if __name__ == '__main__':
     dice_score_list=list(dice_score.astype(str))
     dice_score_str=''
     for x in dice_score_list:
-		dice_score_str=dice_score_str+x+' '
+        dice_score_str=dice_score_str+x+' '
     dice_score_str=dice_score_str.rstrip()
     os.system("echo "+dice_score_str+" > "+output_file)
 

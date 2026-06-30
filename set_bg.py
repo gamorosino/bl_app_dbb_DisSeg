@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Created on Fri Dec 10 15:20:42 2021
@@ -30,14 +30,14 @@ if __name__ == '__main__':
     Mask_file=args.fullpath1[0]
     T1_file_bg=args.fullpath2[0]
                         
-    MaskArray = nib.load(Mask_file).get_data()
+    MaskArray = nib.load(Mask_file).get_fdata()
     MaskArray_orig=MaskArray.copy()
     MaskArray = bDil(MaskArray, structure=None, iterations=1)
                       
     T1_NIB = nib.load(T1_file)
-    T1_Array = T1_NIB.get_data()
-    T1_header = T1_NIB.get_header()
-    T1_affine = T1_NIB.get_affine()
+    T1_Array = T1_NIB.get_fdata()
+    T1_header = T1_NIB.header
+    T1_affine = T1_NIB.affine
                         
     T1_bg2000 = ( MaskArray * T1_Array ) +  (  2000 * ( MaskArray == 0 ) )
                         

@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 
@@ -92,7 +92,7 @@ def OrtoView(Array3D,Mask=None,colormap='gray', alpha=0.4, Roispacing=None, head
                   plot_track(track_path,0.5,axarr[1,0])
                   mesh.vis=1
               else:
-                  print "Error: not a valid track file to plot in the filed trackname"
+                  print("Error: not a valid track file to plot in the filed trackname")
       
           def click_plot(self,event):
               self.plot()
@@ -106,7 +106,7 @@ def OrtoView(Array3D,Mask=None,colormap='gray', alpha=0.4, Roispacing=None, head
       
       def mesh_update(Array,spacing):
       
-          print 'Update mesh'
+          print('Update mesh')
           try:
               clear_3Daxis()
               axarr[1,0].set_visible(mesh.vis)
@@ -189,7 +189,7 @@ def OrtoView(Array3D,Mask=None,colormap='gray', alpha=0.4, Roispacing=None, head
       
       def clear_roi():
       
-          print 'Clear ROI'
+          print('Clear ROI')
           roi.data = np.zeros_like(roi.data, dtype=int)
           reset_axis('all')
       
@@ -205,7 +205,7 @@ def OrtoView(Array3D,Mask=None,colormap='gray', alpha=0.4, Roispacing=None, head
               filename = filename[0:filename.rfind('.')]
           filename_ROI = filename + '_ROI' + ".nii.gz"
           nii_ROI.to_filename(filename_ROI)
-          print "ROI saved as " + filename_ROI
+          print("ROI saved as " + filename_ROI)
           roi.saved = filename_ROI
       
       # init_cursors
@@ -218,7 +218,7 @@ def OrtoView(Array3D,Mask=None,colormap='gray', alpha=0.4, Roispacing=None, head
       
       ### define cursors events ###
       def onClick(event):
-          print 'pressed'
+          print('pressed')
           curs1.set_active(0)
           curs2.set_active(0)
           curs3.set_active(0)
@@ -227,7 +227,7 @@ def OrtoView(Array3D,Mask=None,colormap='gray', alpha=0.4, Roispacing=None, head
       # event on mouse relase
       
       def onRelease(event):
-          print 'release'
+          print('release')
           curs1.set_active(1)
           curs2.set_active(1)
           curs3.set_active(1)
@@ -242,7 +242,7 @@ def OrtoView(Array3D,Mask=None,colormap='gray', alpha=0.4, Roispacing=None, head
       
           xx_l, yy_l, zz_l, rgb_l = get_track_vects(track_path, downs)
       
-          print "plot track..."
+          print("plot track...")
       
           ax.scatter(xx_l, yy_l, zz_l, c=rgb_l, depthshade=False, lw=0.01, s=5, alpha=1, antialiased=True)
           ax.axis("off")
@@ -298,17 +298,17 @@ def OrtoView(Array3D,Mask=None,colormap='gray', alpha=0.4, Roispacing=None, head
       #load NifTI image
       
       def load_nii(file_path_nc):
-          print "loading Image..."
+          print("loading Image...")
       
           image_nc = nib.load(file_path_nc)
-          head_nc = image_nc.get_header()
-          affine_nc = image_nc.get_affine()
-          Array3D = image_nc.get_data()
+          head_nc = image_nc.header
+          affine_nc = image_nc.affine
+          Array3D = image_nc.get_fdata()
       
           if len(Array3D.shape) == 4:
               Array3D=Array3D[:,:,:,0]
           elif len(Array3D.shape) <3:
-              print "Wrong Dimension"
+              print("Wrong Dimension")
               exit()
           Array3D = Array3D[-1::-1,-1::-1,-1::-1].transpose(1,0,2)
           
@@ -503,11 +503,11 @@ def OrtoView(Array3D,Mask=None,colormap='gray', alpha=0.4, Roispacing=None, head
               if  self.visibility == 1 :
                   self.visibility=0
                   mesh.vis=0
-                  print "Hide ROI mesh"
+                  print("Hide ROI mesh")
               else:
                   self.visibility=1
                   mesh.vis = 1
-                  print "Show ROI mesh"
+                  print("Show ROI mesh")
       
               axarr[1, 0].set_visible(self.visibility)
       
