@@ -41,7 +41,10 @@
 	if [ ${no_hm} -eq 0 ]; then
 		singularity exec -e docker://brainlife/ants:2.2.0-1bc ImageMath 3 ${t1_hm}  HistogramMatch ${t1} ${reference}  
 	else
-		singularity exec -e docker://brainlife/ants:2.2.0-1bc  ImageMath 3  ${t1_hm} Normalize  ${t1} ${mask}  && singularity exec -e docker://brainlife/ants:2.2.0-1bc ImageMath 3 ${t1_hm} m ${t1_hm} 100  
+		singularity exec -e docker://brainlife/ants:2.2.0-1bc bash -c "
+				ImageMath 3 ${t1_hm} Normalize ${t1} ${mask} &&
+				ImageMath 3 ${t1_hm} m ${t1_hm} 100
+				"
 	fi
 	chkcp_dir=${SCRIPT_DIR}
 	
