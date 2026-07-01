@@ -48,6 +48,6 @@
 	fi
 	chkcp_dir=${SCRIPT_DIR}
 	
-	singularity exec -e  --nv docker://gamorosino/bl_app_dbb_disseg python  ${SCRIPT_DIR}/predict.py  ${t1_hm} ${output} ${chkcp_dir} --mask ${mask}
+	singularity exec -e  --nv docker://gamorosino/bl_app_dbb_disseg:v2.0 python  ${SCRIPT_DIR}/predict.py  ${t1_hm} ${output} ${chkcp_dir} --mask ${mask}
 
 	cp ${SCRIPT_DIR}'/data/label.json' ${outputdir}
