@@ -27,24 +27,35 @@ RUN apt-get update && apt-get install \
                      zip \
                      file
 
-## install Conda (Python 3)
+## install Miniconda3 4.12.0 (pre-TOS enforcement)
 ENV PATH /opt/conda/bin:$PATH
-RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh && \
+RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-py39_4.12.0-Linux-x86_64.sh -O ~/miniconda.sh && \
     /bin/bash ~/miniconda.sh -b -p /opt/conda && \
     rm ~/miniconda.sh && \
     ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
     echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc && \
     echo "conda activate base" >> ~/.bashrc
 
-## install Python Modules with Conda
-RUN conda install -c anaconda python=3.9 && \
-    conda install -c anaconda scikit-image=0.19.3 && \
-    conda install -c anaconda requests=2.28.0 && \
-    conda install -c conda-forge nibabel=4.0.2 && \
-    conda install -c conda-forge pydicom=2.3.1 && \
-    conda install -c conda-forge tqdm=4.64.0 && \
-    conda install -c conda-forge tensorflow=2.9.1 cudatoolkit=11.2 cudnn=8.1.0 && \
-    conda install -c conda-forge scipy matplotlib
+## install Python Modules via pip
+RUN pip install --no-cache-dir \
+        "numpy<2" \
+        scikit-image==0.19.3 \
+        requests==2.28.0 \
+        nibabel==4.0.2 \
+        pydicom==2.3.1 \
+        tqdm==4.64.0 \
+        scipy \
+        matplotlib \
+        tensorflow-gpu==2.9.1 && \
+    conda clean -afy && \
+    rm -rf /opt/conda/pkgs
+
+# Break Conda hardlinks that Singularity rootless cannot unpack
+RUN find /opt/conda -type f -links +1 -exec bash -c '\
+  for f; do \
+    tmp="${f}.tmpcopy"; \
+    cp -a --remove-destination "$f" "$tmp" && mv "$tmp" "$f"; \
+  done' bash {} +
 
 ## Clone bl_app_dbb_DisSeg via Github
 RUN cd / && git clone https://github.com/gamorosino/bl_app_dbb_DisSeg.git
