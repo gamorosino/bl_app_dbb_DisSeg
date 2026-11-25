@@ -1,5 +1,37 @@
 # bl_app_dbb_DisSeg
 
+<!-- brainlife-app:begin (generated from the App manifest; edit the manifest, not this block) -->
+
+> **Segments a T1-weighted brain image into CSF, gray matter, white matter, deep gray matter, brainstem and cerebellum with the DBB 3D U-Net (DisSeg, TensorFlow), after ANTs histogram matching.**
+
+Histogram-matches the T1w to a reference image with ANTs ImageMath, then predicts a six-class tissue segmentation inside the given brain mask with the 3D U-Net used as baseline in the Distorted Brain Benchmark (DBB) for paediatric patients with brain malformations. Use it for tissue segmentation of T1w images, including distorted or paediatric brains. Needs a brain mask aligned with the T1w; the prediction container runs with GPU support (singularity --nv).
+
+| | |
+|---|---|
+| 📥 **Inputs** | `neuro/anat/t1w` · `neuro/mask` |
+| 📤 **Outputs** | `neuro/parcellation/volume` |
+| 🐳 **Container** | `brainlife/ants:2.2.0-1bc` |
+| ⚙️ **Resources** | 1 CPUs |
+| 🔗 **Run it** | [doi.org/10.25663/brainlife.app.548](https://doi.org/10.25663/brainlife.app.548) |
+
+#### 📥 Inputs
+
+| Input | Datatype | Required | Description |
+|---|---|---|---|
+| `t1` | `neuro/anat/t1w` | yes | T1-weighted image to segment. |
+| `mask` | `neuro/mask` | yes | Brain mask of the T1w image, used to restrict the prediction. Same grid as the T1w. |
+
+#### 📤 Outputs
+
+| Output | Datatype | Description |
+|---|---|---|
+| `segmentation` | `neuro/parcellation/volume` | Tissue segmentation (segmentation.nii.gz) with label.json: 1 CSF, 2 gray matter, 3 white matter, 4 deep gray matter, 5 brainstem, 6 cerebellum. |
+
+📚 **References used by this App:**
+- Amorosino G., Peruzzo D., Redaelli D., Olivetti E., Arrigoni F., Avesani P. DBB - A Distorted Brain Benchmark for Automatic Tissue Segmentation in Paediatric Patients. NeuroImage 119486 (2022). [doi:10.1016/j.neuroimage.2022.119486](https://doi.org/10.1016/j.neuroimage.2022.119486)
+
+<!-- brainlife-app:end -->
+
 This application implements a 3D U-Net for brain tissue segmentation. This implementation of 3D U-Net is used as the baseline method in the Distorted Brain Benchmark (DBB) for automatic tissue segmentation in paediatric patients.
 
 ### Updates
